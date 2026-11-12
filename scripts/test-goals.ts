@@ -1,6 +1,6 @@
 // Quick checks of the goal rules. Run with: npx tsx scripts/test-goals.ts
 import { addDays } from '../src/logic/dates';
-import { defaultDeadline, describeGoal, formatValue, pace, progress, status, timeLeft, type Goal } from '../src/logic/goals';
+import { defaultDeadline, describeGoal, formatValue, goalChanges, pace, progress, status, timeLeft, type Goal } from '../src/logic/goals';
 
 const today = '2026-11-12'; // Thursday
 const base: Goal = {
@@ -30,3 +30,10 @@ check('quarter deadline', defaultDeadline('quarter', today), '2027-02-10');
 check('time left', timeLeft(base, today), '3 months left');
 check('format £', formatValue(1800, '£'), '£1,800');
 check('format km', formatValue(12.25, 'km'), '12.3 km');
+const easy = (after: Partial<Goal>) => goalChanges(base, { ...base, ...after }).map((c) => `${c.field}:${c.easier ? 'easier' : 'harder'}`);
+check('later deadline = easier', easy({ deadline: addDays(base.deadline, 30) }), ['deadline:easier']);
+check('sooner deadline = harder', easy({ deadline: addDays(base.deadline, -30) }), ['deadline:harder']);
+check('lower target = easier', easy({ targetValue: 8000 }), ['target:easier']);
+check('higher target = harder', easy({ targetValue: 12000 }), ['target:harder']);
+check('weight goal 80->70 made 80->75 = easier', goalChanges({ ...base, startValue: 80, targetValue: 70 }, { ...base, startValue: 80, targetValue: 75 }).map((c) => c.easier), [true]);
+check('no change', easy({ title: 'New name' }), []);

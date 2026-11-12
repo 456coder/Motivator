@@ -229,3 +229,54 @@ export function sortGoals(goals: Goal[]): Goal[] {
   const order = LEVELS.map((l) => l.id);
   return [...goals].sort((a, b) => order.indexOf(a.level) - order.indexOf(b.level) || a.deadline.localeCompare(b.deadline));
 }
+
+/** A recorded change to a goal's deadline or target, or the goal being stopped. */
+export type GoalChange = {
+  id: string;
+  goalId: string;
+  field: 'deadline' | 'target' | 'archived';
+  from: string;
+  to: string;
+  /** True when the change made the goal easier (later deadline, smaller target, stopping it). */
+  easier: boolean;
+  reason: string;
+  date: DateKey;
+};
+
+type ChangeDraft = Omit<GoalChange, 'id' | 'goalId' | 'reason' | 'date'>;
+
+/**
+ * The deadline / target changes between a goal and its edited version.
+ * Later deadlines and targets closer to the start count as "easier".
+ */
+export function goalChanges(
+  before: Goal,
+  after: Pick<Goal, 'deadline' | 'targetValue' | 'startValue' | 'kind' | 'unit'>,
+): ChangeDraft[] {
+  const out: ChangeDraft[] = [];
+  if (after.deadline !== before.deadline) {
+    out.push({
+      field: 'deadline',
+      from: formatDate(before.deadline),
+      to: formatDate(after.deadline),
+      easier: after.deadline > before.deadline,
+    });
+  }
+  if (before.kind === 'number' && after.kind === 'number' && after.targetValue !== before.targetValue) {
+    out.push({
+      field: 'target',
+      from: formatValue(before.targetValue, before.unit),
+      to: formatValue(after.targetValue, after.unit),
+      easier: Math.abs(after.targetValue - after.startValue) < Math.abs(before.targetValue - before.startValue),
+    });
+  }
+  return out;
+}
+
+/** "Deadline moved later: 31 Mar 2027 → 30 Apr 2027". */
+export function describeChange(c: GoalChange): string {
+  if (c.field === 'archived') return 'Stopped before it was finished';
+  const what = c.field === 'deadline' ? 'Deadline' : 'Target';
+  const how = c.field === 'deadline' ? (c.easier ? 'moved later' : 'moved sooner') : c.easier ? 'lowered' : 'raised';
+  return `${what} ${how}: ${c.from} → ${c.to}`;
+}

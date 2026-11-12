@@ -6,7 +6,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { dateKey, type DateKey } from '@/logic/dates';
-import type { Goal, GoalLog } from '@/logic/goals';
+import { goalChanges, type Goal, type GoalChange, type GoalLog } from '@/logic/goals';
 import type { Habit, HabitLogs } from '@/logic/habits';
 
 export type Settings = {
@@ -19,6 +19,8 @@ type Data = {
   logs: HabitLogs;
   goals: Goal[];
   goalLogs: GoalLog[];
+  /** Deadline / target changes and goals stopped early, with the reasons given. */
+  goalChanges: GoalChange[];
   settings: Settings;
 };
 
@@ -35,12 +37,14 @@ type Actions = {
   setAmount: (id: string, amount: number, day?: DateKey) => void;
 
   addGoal: (goal: NewGoal) => string;
-  updateGoal: (id: string, changes: Partial<NewGoal>) => void;
+  /** Edit a goal. Deadline / target changes are recorded with `reason`. */
+  updateGoal: (id: string, changes: Partial<NewGoal>, reason?: string) => void;
   /** Record progress on a number goal: `value` is the new total. Marks it done when the target is reached. */
   logProgress: (id: string, value: number, note: string) => void;
   deleteGoalLog: (logId: string) => void;
   setGoalDone: (id: string, done: boolean) => void;
-  setGoalArchived: (id: string, archived: boolean) => void;
+  /** Archive or bring back a goal. Stopping an unfinished goal is recorded with `reason`. */
+  setGoalArchived: (id: string, archived: boolean, reason?: string) => void;
   /** Removes the goal and its progress log. Goals and habits under it move up to its parent. */
   deleteGoal: (id: string) => void;
 };
@@ -50,6 +54,7 @@ const initial: Data = {
   logs: {},
   goals: [],
   goalLogs: [],
+  goalChanges: [],
   settings: { streakThreshold: 1 },
 };
 
@@ -108,22 +113,35 @@ export const useStore = create<Data & Actions>()(
         return id;
       },
 
-      updateGoal: (id, changes) =>
-        set((s) => ({
-          goals: s.goals.map((g) => {
-            if (g.id !== id) return g;
-            const next = { ...g, ...changes };
-            // A new start value with no progress logged yet moves the current value too.
-            if (changes.startValue !== undefined && !s.goalLogs.some((l) => l.goalId === id)) {
-              next.currentValue = changes.startValue;
-            }
-            if (next.kind === 'number') {
-              const hit = reached(next.startValue, next.targetValue, next.currentValue);
-              next.doneAt = hit ? (g.doneAt ?? dateKey()) : null;
-            }
-            return next;
-          }),
-        })),
+      updateGoal: (id, changes, reason = '') =>
+        set((s) => {
+          const before = s.goals.find((g) => g.id === id);
+          const recorded: GoalChange[] = before
+            ? goalChanges(before, { ...before, ...changes }).map((c) => ({
+                ...c,
+                id: newId(),
+                goalId: id,
+                reason: reason.trim(),
+                date: dateKey(),
+              }))
+            : [];
+          return {
+            goalChanges: [...s.goalChanges, ...recorded],
+            goals: s.goals.map((g) => {
+              if (g.id !== id) return g;
+              const next = { ...g, ...changes };
+              // A new start value with no progress logged yet moves the current value too.
+              if (changes.startValue !== undefined && !s.goalLogs.some((l) => l.goalId === id)) {
+                next.currentValue = changes.startValue;
+              }
+              if (next.kind === 'number') {
+                const hit = reached(next.startValue, next.targetValue, next.currentValue);
+                next.doneAt = hit ? (g.doneAt ?? dateKey()) : null;
+              }
+              return next;
+            }),
+          };
+        }),
 
       logProgress: (id, value, note) =>
         set((s) => {
@@ -158,8 +176,20 @@ export const useStore = create<Data & Actions>()(
       setGoalDone: (id, done) =>
         set((s) => ({ goals: s.goals.map((g) => (g.id === id ? { ...g, doneAt: done ? dateKey() : null } : g)) })),
 
-      setGoalArchived: (id, archived) =>
-        set((s) => ({ goals: s.goals.map((g) => (g.id === id ? { ...g, archived } : g)) })),
+      setGoalArchived: (id, archived, reason = '') =>
+        set((s) => {
+          const goal = s.goals.find((g) => g.id === id);
+          const stoppedEarly = goal && archived && !goal.doneAt;
+          return {
+            goals: s.goals.map((g) => (g.id === id ? { ...g, archived } : g)),
+            goalChanges: stoppedEarly
+              ? [
+                  ...s.goalChanges,
+                  { id: newId(), goalId: id, field: 'archived', from: '', to: '', easier: true, reason: reason.trim(), date: dateKey() },
+                ]
+              : s.goalChanges,
+          };
+        }),
 
       deleteGoal: (id) =>
         set((s) => {
@@ -170,18 +200,20 @@ export const useStore = create<Data & Actions>()(
               .filter((g) => g.id !== id)
               .map((g) => (g.parentId === id ? { ...g, parentId: goal.parentId } : g)),
             goalLogs: s.goalLogs.filter((l) => l.goalId !== id),
+            goalChanges: s.goalChanges.filter((c) => c.goalId !== id),
             habits: s.habits.map((h) => (h.goalId === id ? { ...h, goalId: goal.parentId } : h)),
           };
         }),
     }),
     {
       name: 'motivator-data',
-      version: 2,
+      version: 3,
       storage: createJSONStorage(() => AsyncStorage),
-      // Older saves: version 1 had habits only.
+      // Older saves: version 1 had habits only; version 2 had no change history.
       migrate: (saved, version) => {
-        const data = saved as Partial<Data>;
-        if (version < 2) return { ...data, goals: [], goalLogs: [] };
+        let data = saved as Partial<Data>;
+        if (version < 2) data = { ...data, goals: [], goalLogs: [] };
+        if (version < 3) data = { ...data, goalChanges: [] };
         return data;
       },
     },

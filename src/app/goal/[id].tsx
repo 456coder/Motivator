@@ -16,6 +16,7 @@ import { TextField } from '@/components/TextField';
 import { useToday } from '@/hooks/useToday';
 import {
   childrenOf,
+  describeChange,
   describeGoal,
   expectedValue,
   formatDate,
@@ -40,6 +41,7 @@ export default function GoalScreen() {
   const goal = useStore((s) => s.goals.find((g) => g.id === id));
   const goals = useStore((s) => s.goals);
   const goalLogs = useStore((s) => s.goalLogs);
+  const allChanges = useStore((s) => s.goalChanges);
   const habits = useStore((s) => s.habits);
   const logProgress = useStore((s) => s.logProgress);
   const deleteGoalLog = useStore((s) => s.deleteGoalLog);
@@ -51,6 +53,8 @@ export default function GoalScreen() {
   const [mode, setMode] = useState<'add' | 'total'>('add');
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
+  const [stopping, setStopping] = useState(false);
+  const [stopReason, setStopReason] = useState('');
 
   if (!goal) return <Redirect href="/goals" />;
 
@@ -63,7 +67,15 @@ export default function GoalScreen() {
   const steps = sortGoals(childrenOf(goal, goals));
   const below = levelBelow(goal.level);
   const linkedHabits = habits.filter((h) => h.goalId === goal.id && !h.archived);
-  const history = goalLogs.filter((l) => l.goalId === goal.id).reverse();
+  // Progress entries and changes together, newest first.
+  const changes = allChanges.filter((c) => c.goalId === goal.id);
+  const madeEasier = changes.filter((c) => c.easier && c.field !== 'archived').length;
+  const history = [
+    ...goalLogs.filter((l) => l.goalId === goal.id).map((l) => ({ kind: 'log' as const, date: l.date, log: l })),
+    ...changes.map((c) => ({ kind: 'change' as const, date: c.date, change: c })),
+  ]
+    .map((item, i) => ({ ...item, order: i }))
+    .sort((a, b) => b.date.localeCompare(a.date) || b.order - a.order);
 
   const typed = Number(amount.replace(/[£$€,\s]/g, ''));
   const canLog = amount.trim() !== '' && !Number.isNaN(typed);
@@ -128,6 +140,14 @@ export default function GoalScreen() {
         ) : null}
         {goal.kind !== 'number' ? (
           <Text style={type.caption}>The black line on the bar shows where you should be by today.</Text>
+        ) : null}
+        {madeEasier > 0 ? (
+          <View style={styles.warning}>
+            <Icon name="flag" size={16} color={colors.orangeText} />
+            <Text style={[type.label, { color: colors.orangeText }]}>
+              Made easier {madeEasier === 1 ? 'once' : `${madeEasier} times`}. See History.
+            </Text>
+          </View>
         ) : null}
       </Card>
 
@@ -229,35 +249,80 @@ export default function GoalScreen() {
       {history.length > 0 ? (
         <Card>
           <Text style={type.cardTitle}>History</Text>
-          {history.map((l) => (
-            <View key={l.id} style={styles.logRow}>
-              <View style={styles.flex}>
-                <Text style={type.label}>
-                  {formatValue(l.value, goal.unit)} <Text style={type.caption}>· {formatDate(l.date)}</Text>
-                </Text>
-                {l.note ? <Text style={type.caption}>{l.note}</Text> : null}
+          {history.map((item) =>
+            item.kind === 'log' ? (
+              <View key={item.log.id} style={styles.logRow}>
+                <View style={styles.flex}>
+                  <Text style={type.label}>
+                    {formatValue(item.log.value, goal.unit)} <Text style={type.caption}>· {formatDate(item.log.date)}</Text>
+                  </Text>
+                  {item.log.note ? <Text style={type.caption}>{item.log.note}</Text> : null}
+                </View>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Remove this entry"
+                  hitSlop={8}
+                  onPress={() =>
+                    confirm('Remove this entry?', 'Progress goes back to the entry before it.', 'Remove', () => deleteGoalLog(item.log.id))
+                  }>
+                  <Icon name="trash" size={18} color={colors.inkFaint} />
+                </Pressable>
               </View>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Remove this entry"
-                hitSlop={8}
-                onPress={() => confirm('Remove this entry?', 'Progress goes back to the entry before it.', 'Remove', () => deleteGoalLog(l.id))}>
-                <Icon name="trash" size={18} color={colors.inkFaint} />
-              </Pressable>
-            </View>
-          ))}
+            ) : (
+              <View key={item.change.id} style={styles.logRow}>
+                <Icon name="edit" size={18} color={item.change.easier ? colors.orangeText : colors.inkMuted} />
+                <View style={styles.flex}>
+                  <Text style={[type.label, item.change.easier && { color: colors.orangeText }]}>
+                    {describeChange(item.change)} <Text style={type.caption}>· {formatDate(item.change.date)}</Text>
+                  </Text>
+                  {item.change.reason ? <Text style={type.caption}>&ldquo;{item.change.reason}&rdquo;</Text> : null}
+                </View>
+              </View>
+            ),
+          )}
         </Card>
       ) : null}
 
-      <Button
-        label={goal.archived ? 'Bring it back' : 'Archive'}
-        icon="archive"
-        variant="secondary"
-        onPress={() => {
-          setGoalArchived(goal.id, !goal.archived);
-          if (!goal.archived) router.back();
-        }}
-      />
+      {stopping ? (
+        <Card color={colors.orangeSoft}>
+          <Text style={[type.cardTitle, { color: colors.orangeText }]}>Stop working on this goal?</Text>
+          <Text style={[type.caption, { color: colors.orangeText }]}>
+            It isn&apos;t finished yet. Stopping is fine when a goal no longer fits your life, but say why. It stays on the record.
+          </Text>
+          <TextField
+            label="Why are you stopping?"
+            value={stopReason}
+            onChangeText={setStopReason}
+            placeholder="e.g. Moving abroad, so this doesn't fit any more"
+            maxLength={200}
+            multiline
+          />
+          <Button
+            label="Archive goal"
+            icon="archive"
+            color={colors.orange}
+            variant={stopReason.trim().length >= 5 ? 'primary' : 'disabled'}
+            onPress={() => {
+              setGoalArchived(goal.id, true, stopReason);
+              router.back();
+            }}
+          />
+          <Button label="Keep going" variant="secondary" onPress={() => setStopping(false)} />
+        </Card>
+      ) : (
+        <Button
+          label={goal.archived ? 'Bring it back' : 'Archive'}
+          icon="archive"
+          variant="secondary"
+          onPress={() => {
+            if (goal.archived) setGoalArchived(goal.id, false);
+            else if (goal.doneAt) {
+              setGoalArchived(goal.id, true);
+              router.back();
+            } else setStopping(true);
+          }}
+        />
+      )}
       <Button
         label="Delete goal"
         icon="trash"
@@ -287,6 +352,11 @@ const styles = StyleSheet.create({
   pace: {
     borderRadius: 12,
     padding: 12,
+  },
+  warning: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   linkRow: {
     flexDirection: 'row',

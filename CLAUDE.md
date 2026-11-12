@@ -99,8 +99,8 @@ Screens in `src/app/`, components in `src/components/` (PascalCase), rules in `s
 ## Build order (one phase at a time, iPhone test after each)
 1. Project setup, theme, fonts, shared components, navigation + tab bar, placeholder screens ✅
 2. Habits: create, tick off, streaks, Today screen ✅
-3. The goal ladder: 5-year / 3-year / 1-year goals, 90-day milestones, this week's focus, linking goals and habits, logging progress, status + pace, Plan view, "Build your plan"
-4. Change history ("no quiet backing out") + goal detail polish
+3. The goal ladder: 5-year / 3-year / 1-year goals, 90-day milestones, this week's focus, linking goals and habits, logging progress, status + pace, Plan view, "Build your plan" ✅
+4. Change history ("no quiet backing out") + goal detail polish ✅
 5. Charts + history
 6. Reminders with on/off choices + daily score
 7. Calendar: read events, free time, time allocation, add blocks
@@ -125,3 +125,4 @@ Screens in `src/app/`, components in `src/components/` (PascalCase), rules in `s
   - **Today:** "This week's focus" shelf (tap to tick off) or a prompt to set one, and "Goals that need a push" (Behind / Off track, not week-level).
   - Habits can support a goal (picker on the habit form; shown on the habit page). Tile ticks moved to the bottom-right corner so long titles never push them off the card.
   - Rule checks: `npx tsx scripts/test-goals.ts`. Dates use `@react-native-community/datetimepicker` (compact picker on iPhone).
+- **Phase 4, no quiet backing out (built 12 Nov 2026):** every deadline or target change is saved in `goalChanges` (store version 3) with the date and a reason; `goalChanges()` in `src/logic/goals.ts` spots them and marks later deadlines and targets closer to the start as "easier". On Edit goal, an easier change shows an orange "You're making this goal easier" card listing the changes, and Save stays off until a reason of 5+ letters is written. Archiving an unfinished goal asks "Why are you stopping?" (5+ letters) and records it; finished goals archive straight away. The goal page shows "Made easier N times. See History." and History lists progress entries and changes together, newest first, with the reasons in quotes. Harder changes (sooner deadline, bigger target) are recorded too, without needing a reason.

@@ -14,6 +14,7 @@ import { TextField } from '@/components/TextField';
 import { addDays, dateKey } from '@/logic/dates';
 import {
   defaultDeadline,
+  goalChanges,
   KIND_LABELS,
   levelBelow,
   levelInfo,
@@ -65,6 +66,7 @@ export default function GoalFormScreen() {
   const [target, setTarget] = useState(existing && existing.kind === 'number' ? String(existing.targetValue) : '');
   const [deadline, setDeadline] = useState(existing?.deadline ?? defaultDeadline(startLevel, today));
   const [deadlineTouched, setDeadlineTouched] = useState(!!existing);
+  const [reason, setReason] = useState('');
 
   const info = levelInfo(level);
   const setLevel = (l: Level) => {
@@ -83,6 +85,18 @@ export default function GoalFormScreen() {
 
   const startNum = parseNumber(start);
   const targetNum = parseNumber(target);
+  // Editing: making the goal easier (later deadline, smaller target) needs a reason.
+  const easier = existing
+    ? goalChanges(existing, {
+        deadline,
+        kind,
+        unit: unit.trim(),
+        startValue: Number.isNaN(startNum) ? existing.startValue : startNum,
+        targetValue: Number.isNaN(targetNum) ? existing.targetValue : targetNum,
+      }).filter((c) => c.easier)
+    : [];
+  const needsReason = easier.length > 0 && reason.trim().length < 5;
+
   const problem = !title.trim()
     ? 'Give your goal a name'
     : kind === 'number' && Number.isNaN(targetNum)
@@ -93,7 +107,9 @@ export default function GoalFormScreen() {
           ? 'The target should be different from the start'
           : deadline <= today && !existing
             ? 'Pick a deadline after today'
-            : null;
+            : needsReason
+              ? 'Say why you are making it easier'
+              : null;
 
   /** In "Build your plan": the next step, linked to `newParent`. */
   const nextStep = (newParent: string | null) => {
@@ -122,7 +138,7 @@ export default function GoalFormScreen() {
     };
     successHaptic();
     if (existing) {
-      updateGoal(existing.id, goal);
+      updateGoal(existing.id, goal, reason);
       router.back();
       return;
     }
@@ -140,7 +156,7 @@ export default function GoalFormScreen() {
         <HeaderBlock
           back
           title={existing ? 'Edit goal' : flow ? info.label : 'New goal'}
-          subtitle={flow ? `Build your plan · step ${stepNumber} of 6` : info.example}
+          subtitle={flow ? `Build your plan · step ${stepNumber} of 6` : existing ? info.label : info.example}
           color={areas.goals.fill}
         />
       }>
@@ -218,6 +234,28 @@ export default function GoalFormScreen() {
           }}
         />
       </Card>
+
+      {easier.length > 0 ? (
+        <Card color={colors.orangeSoft}>
+          <Text style={[type.cardTitle, { color: colors.orangeText }]}>You&apos;re making this goal easier</Text>
+          {easier.map((c) => (
+            <Text key={c.field} style={[type.label, { color: colors.orangeText }]}>
+              {c.field === 'deadline' ? 'Deadline' : 'Target'}: {c.from} → {c.to}
+            </Text>
+          ))}
+          <Text style={[type.caption, { color: colors.orangeText }]}>
+            That&apos;s allowed, but it goes on the goal&apos;s record. Be honest with yourself.
+          </Text>
+          <TextField
+            label="Why?"
+            value={reason}
+            onChangeText={setReason}
+            placeholder="e.g. Lost my job in March, so saving slowed down"
+            maxLength={200}
+            multiline
+          />
+        </Card>
+      ) : null}
 
       {problem ? <Text style={[type.caption, styles.center]}>{problem}</Text> : null}
       <Button
