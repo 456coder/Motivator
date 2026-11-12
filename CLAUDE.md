@@ -19,16 +19,16 @@ App name: **Motivator** (bundle ID `com.simranuppal.motivator`).
 - expo-notifications (reminders), expo-calendar (read events, add time blocks), expo-haptics, react-native-reanimated (animations), react-native-svg (icons, charts), a chart library that works in Expo Go (e.g. react-native-gifted-charts) or plain Views.
 - Font: **Plus Jakarta Sans** (@expo-google-fonts/plus-jakarta-sans).
 
-## Design: clean and colourful
-Clean, modern and calm, with colour used as accents (changed from the "bubble pop" look on 12 Nov 2026: the user found it tacky).
-- Light lavender-grey background (`colors.bg`), white cards with soft blurred shadows (`softShadow`), no thick outlines.
-- One accent colour per area, each with a soft tint and a darker text shade (`areas` in the theme): Today = amber, Goals = rose, Habits = green, Calendar = blue, Review = brand purple.
-- Brand purple (`colors.brand`) for primary buttons and the one bold block on Today (the score card).
+## Design: soft header + card shelves
+Clean and calm with muted, dusty colours (12 Nov 2026: the loud "bubble pop" look was dropped as tacky; the layout follows a format the user liked from a wellbeing app, without copying its look).
+- **Layout of each main screen:** a coloured header block across the top (behind the status bar, rounded bottom corners, centred white title + subtitle, see-through round buttons) — `HeaderBlock`. Below it, **shelves**: a section title with a coral "See all" link, then a sideways-scrolling row of tall coloured cards with white text — `Shelf` + `Tile`. Plain white `Card`s for details.
+- Warm off-white background (`colors.bg`), white cards with soft blurred shadows (`softShadow`), no thick outlines.
+- Muted area colours (`areas` in the theme, each with a soft tint and a darker text shade): Today = periwinkle header (`colors.brand`), Goals = dusty rose, Habits = sage teal, Calendar = soft sky, Review = periwinkle. Coral (`colors.link`) for "See all" links.
 - Font: **Plus Jakarta Sans** everywhere (ExtraBold titles and big numbers, Bold buttons and card titles, SemiBold labels, Medium body).
 - Buttons are rounded (radius 16) and shrink slightly when pressed, with a haptic.
-- **Status colours are always the same:** Ahead = green, On track = blue, Behind = orange, Off track = red (tinted badge with a dot).
-- Progress bars are slim; a dark tick marks where you should be by today.
-- Icons are thin outlined SVGs in `Icon.tsx`, coloured with the area colour. No emoji in the UI (notification text may use them).
+- **Status colours are always the same:** Ahead = green, On track = blue, Behind = orange, Off track = red. On the Goals tab, goal tiles take their status colour.
+- Progress bars are slim; a dark tick marks where you should be by today. On tiles, progress is a thin white bar.
+- Icons are thin outlined SVGs in `Icon.tsx`. No emoji in the UI (notification text may use them).
 - All colours, fonts, radii and shadows live in `src/theme.ts`. Never hard-code a new colour.
 - Light mode only.
 
@@ -57,7 +57,7 @@ Clean, modern and calm, with colour used as accents (changed from the "bubble po
 5. **Calendar:** today's agenda with events and suggested blocks; a month view of hit/missed days.
 
 ## Screens
-- Tabs: **Today**, **Goals**, **Habits**, **Calendar** (custom white tab bar; the active tab's icon sits in a soft pill of its area colour).
+- Tabs: **Today**, **Goals**, **Habits**, **Calendar** (custom white tab bar; the active tab's icon sits in a soft pill of its area colour). Today: greeting header with score / streak / habits-done stats, then shelves for today's habits, goals to push and your time today.
 - Other screens: Goal detail (`/goal/[id]`), New goal (`/goal/new`), New habit (`/habit/new`), Weekly review (`/review`), Settings (`/settings`, opened from the gear on Today), Components gallery (`/components`, for testing the shared components).
 
 ## Folders
@@ -84,4 +84,4 @@ Screens in `src/app/`, components in `src/components/` (PascalCase), rules in `s
 9. Polish, then App Store prep
 
 ## Decisions log
-- **12 Nov 2026:** Name Motivator. First tried a loud "bubble pop" look with bubble writing; the user found it tacky, so the design is now clean and colourful (light background, white cards, colour as accents, Plus Jakarta Sans). Reminders twice a day (morning + evening) by default. No AI in version 1; the calendar planning is rule-based. AI may be added later inside goal creation, calendar reading and the weekly review.
+- **12 Nov 2026:** Name Motivator. First tried a loud "bubble pop" look with bubble writing; the user found it tacky, then a clean version; then the user asked for a layout like a wellbeing app they liked (coloured header + shelves of coloured cards with "See all"), built in our own muted colours. Reminders twice a day (morning + evening) by default. No AI in version 1; the calendar planning is rule-based. AI may be added later inside goal creation, calendar reading and the weekly review.

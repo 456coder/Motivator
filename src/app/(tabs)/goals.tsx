@@ -1,63 +1,46 @@
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Card } from '@/components/Card';
 import { ComingSoon } from '@/components/ComingSoon';
-import { IconButton } from '@/components/IconButton';
-import { ProgressBar } from '@/components/ProgressBar';
+import { HeaderBlock } from '@/components/HeaderBlock';
 import { Screen } from '@/components/Screen';
-import { ScreenHeader } from '@/components/ScreenHeader';
-import { StatusBadge } from '@/components/StatusBadge';
-import { areas, colors, type } from '@/theme';
+import { Shelf } from '@/components/Shelf';
+import { Tile } from '@/components/Tile';
+import { areas, statusColors } from '@/theme';
 
-/** Goals list. (Placeholder until phase 3.) */
+/** Goals, grouped by how on track they are. Example cards until phase 3. */
 export default function GoalsScreen() {
   return (
-    <Screen>
-      <ScreenHeader
-        title="Goals"
-        back={false}
-        right={
-          <IconButton
-            icon="plus"
-            label="New goal"
-            color={areas.goals.fill}
-            iconColor={colors.white}
-            onPress={() => router.push('/goal/new')}
-          />
-        }
-      />
-
-      {/* A sample goal card, to show the style. */}
-      <Pressable onPress={() => router.push('/goal/sample')}>
-        <Card>
-          <View style={styles.between}>
-            <Text style={type.cardTitle}>Save £5,000</Text>
-            <StatusBadge status="behind" />
-          </View>
-          <ProgressBar value={0.36} marker={0.45} color={areas.goals.fill} />
-          <View style={styles.between}>
-            <Text style={type.caption}>£1,800 of £5,000</Text>
-            <Text style={type.caption}>Sample · 112 days left</Text>
-          </View>
-        </Card>
-      </Pressable>
-
+    <Screen
+      header={
+        <HeaderBlock
+          title="Goals"
+          subtitle="Where you are vs. where you should be"
+          color={areas.goals.fill}
+          action={{ icon: 'plus', label: 'New goal', onPress: () => router.push('/goal/new') }}
+        />
+      }>
+      <Shelf title="Needs a push">
+        <Tile
+          title="Save £5,000 by March"
+          tag="Behind"
+          footer="£1,800 of £5,000"
+          progress={0.36}
+          color={statusColors.behind.fill}
+          onPress={() => router.push('/goal/sample')}
+        />
+        <Tile title="Run a half marathon" tag="Off track" footer="6 of 21 km" progress={0.28} color={statusColors.offTrack.fill} />
+      </Shelf>
+      <Shelf title="Going well">
+        <Tile title="Finish my Spanish course" tag="On track" footer="Unit 6 of 12" progress={0.5} color={statusColors.onTrack.fill} />
+        <Tile title="Read 24 books this year" tag="Ahead" footer="21 of 24" progress={0.88} color={statusColors.ahead.fill} />
+      </Shelf>
       <ComingSoon
         icon="goals"
         area="goals"
-        title="Your goals"
+        title="Your own goals"
         phase={3}
         lines={['Goals with a target and a deadline', 'Milestones along the way', 'Ahead / On track / Behind for each one']}
       />
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  between: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-});

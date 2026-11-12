@@ -1,13 +1,12 @@
 import { ComingSoon } from '@/components/ComingSoon';
+import { HeaderBlock } from '@/components/HeaderBlock';
 import { Screen } from '@/components/Screen';
-import { ScreenHeader } from '@/components/ScreenHeader';
-
+import { areas } from '@/theme';
 
 /** Weekly review. (Placeholder until phase 8.) */
 export default function ReviewScreen() {
   return (
-    <Screen bottomInset>
-      <ScreenHeader title="Weekly review" />
+    <Screen bottomInset header={<HeaderBlock back title="Weekly review" color={areas.review.fill} />}>
       <ComingSoon
         icon="chart"
         area="review"

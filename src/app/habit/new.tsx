@@ -1,13 +1,12 @@
 import { ComingSoon } from '@/components/ComingSoon';
+import { HeaderBlock } from '@/components/HeaderBlock';
 import { Screen } from '@/components/Screen';
-import { ScreenHeader } from '@/components/ScreenHeader';
-
+import { areas } from '@/theme';
 
 /** Create a habit. (Placeholder until phase 2.) */
 export default function NewHabitScreen() {
   return (
-    <Screen bottomInset>
-      <ScreenHeader title="New habit" />
+    <Screen bottomInset header={<HeaderBlock back title="New habit" color={areas.habits.fill} />}>
       <ComingSoon
         icon="habits"
         area="habits"

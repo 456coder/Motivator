@@ -8,7 +8,7 @@ import { Icon, type IconName } from '@/components/Icon';
 import { Pill } from '@/components/Pill';
 import { ProgressBar } from '@/components/ProgressBar';
 import { Screen } from '@/components/Screen';
-import { ScreenHeader } from '@/components/ScreenHeader';
+import { HeaderBlock } from '@/components/HeaderBlock';
 import { Segmented } from '@/components/Segmented';
 import { StatusBadge } from '@/components/StatusBadge';
 import { Toggle } from '@/components/Toggle';
@@ -26,8 +26,7 @@ export default function ComponentsScreen() {
   const [chip, setChip] = useState('Fitness');
 
   return (
-    <Screen bottomInset>
-      <ScreenHeader title="All the pieces" eyebrow="Design check" />
+    <Screen bottomInset header={<HeaderBlock back title="All the pieces" />}>
 
       <Card>
         <Text style={type.cardTitle}>Area colours</Text>

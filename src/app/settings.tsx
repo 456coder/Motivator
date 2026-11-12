@@ -3,14 +3,13 @@ import { router } from 'expo-router';
 import { Button } from '@/components/Button';
 import { ComingSoon } from '@/components/ComingSoon';
 import { Screen } from '@/components/Screen';
-import { ScreenHeader } from '@/components/ScreenHeader';
+import { HeaderBlock } from '@/components/HeaderBlock';
 
 
 /** Settings. (Placeholder; filled in over later phases.) */
 export default function SettingsScreen() {
   return (
-    <Screen bottomInset>
-      <ScreenHeader title="Settings" />
+    <Screen bottomInset header={<HeaderBlock back title="Settings" />}>
       <ComingSoon
         icon="bell"
         area="today"

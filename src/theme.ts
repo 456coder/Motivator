@@ -6,32 +6,33 @@ export const colors = {
   ink: '#1C1B29', // main text
   inkMuted: '#6E6B80', // secondary text
   inkFaint: '#A3A0B4', // hints, inactive tab labels
-  bg: '#F6F5FB', // screen background
+  bg: '#FAF8F6', // screen background (warm off-white)
   card: '#FFFFFF', // cards, tab bar
-  line: '#ECEAF3', // hairlines, empty progress tracks
+  line: '#EEEAE6', // hairlines, empty progress tracks
   white: '#FFFFFF',
 
   // Brand
-  brand: '#7C5CFF', // primary buttons, selected states
-  brandSoft: '#EEE9FF',
+  brand: '#8C89C9', // header blocks, primary buttons (dusty periwinkle)
+  brandSoft: '#ECEBF7',
+  link: '#D9596A', // "See all" links
 
   // One colour per area (accent + soft tint + darker text shade)
-  amber: '#FFB020',
-  amberSoft: '#FFF4DC',
-  amberText: '#A86A00',
-  rose: '#F2557A',
-  roseSoft: '#FDE7EC',
-  roseText: '#B8284D',
-  green: '#22C38E',
-  greenSoft: '#DEF7EE',
-  greenText: '#0F8A61',
-  blue: '#3D8BFD',
-  blueSoft: '#E2EEFF',
-  blueText: '#1F5FC4',
-  orange: '#FF8A3D',
+  amber: '#E9A86B', // dusty apricot
+  amberSoft: '#FBEEDF',
+  amberText: '#9A5E22',
+  rose: '#DE8C9B', // dusty rose
+  roseSoft: '#F8E6E9',
+  roseText: '#A8455A',
+  green: '#7DBDB3', // sage teal
+  greenSoft: '#E3F2EF',
+  greenText: '#2F7D71',
+  blue: '#8EB1DE', // soft sky
+  blueSoft: '#E6EEF9',
+  blueText: '#3D6AA6',
+  orange: '#EE9A5B',
   orangeSoft: '#FFEADC',
   orangeText: '#B8541A',
-  red: '#EF4444',
+  red: '#DC6B6B',
   redSoft: '#FDE4E4',
   redText: '#B42323',
 
@@ -46,13 +47,13 @@ export const areas = {
   goals: { fill: colors.rose, soft: colors.roseSoft, text: colors.roseText },
   habits: { fill: colors.green, soft: colors.greenSoft, text: colors.greenText },
   calendar: { fill: colors.blue, soft: colors.blueSoft, text: colors.blueText },
-  review: { fill: colors.brand, soft: colors.brandSoft, text: colors.brand },
+  review: { fill: colors.brand, soft: colors.brandSoft, text: '#5D5A9E' },
 } as const;
 export type Area = keyof typeof areas;
 
 /** On-track status colours. Always the same everywhere. */
 export const statusColors = {
-  ahead: { fill: colors.green, soft: colors.greenSoft, text: colors.greenText, label: 'Ahead' },
+  ahead: { fill: '#5DB58A', soft: '#E1F3E9', text: '#2C7A53', label: 'Ahead' },
   onTrack: { fill: colors.blue, soft: colors.blueSoft, text: colors.blueText, label: 'On track' },
   behind: { fill: colors.orange, soft: colors.orangeSoft, text: colors.orangeText, label: 'Behind' },
   offTrack: { fill: colors.red, soft: colors.redSoft, text: colors.redText, label: 'Off track' },
@@ -93,8 +94,18 @@ export const softShadow = {
   elevation: 2,
 };
 
+/** Text on top of a coloured header or tile. */
+export const onColor = {
+  title: '#FFFFFF',
+  body: 'rgba(255,255,255,0.88)',
+  faint: 'rgba(255,255,255,0.7)',
+  glass: 'rgba(255,255,255,0.22)', // see-through white pills on colour
+};
+
 export const layout = {
   screenPadding: 20,
+  tileWidth: 156,
+  tileHeight: 176,
   gap: 14,
   primaryButtonHeight: 56,
   secondaryButtonHeight: 50,

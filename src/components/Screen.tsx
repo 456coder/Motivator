@@ -6,6 +6,8 @@ import { colors, layout } from '@/theme';
 
 type Props = {
   children: ReactNode;
+  /** A HeaderBlock (or anything) drawn full-width above the padded content. */
+  header?: ReactNode;
   /** Scroll the content (default true). */
   scroll?: boolean;
   /** Add space for the safe area at the bottom (screens without the tab bar). */
@@ -13,25 +15,31 @@ type Props = {
   contentStyle?: StyleProp<ViewStyle>;
 };
 
-/** Plain light background with safe-area padding and optional scrolling. */
-export function Screen({ children, scroll = true, bottomInset = false, contentStyle }: Props) {
+/** Light background with an optional coloured header, with safe-area padding and optional scrolling. */
+export function Screen({ children, header, scroll = true, bottomInset = false, contentStyle }: Props) {
   const insets = useSafeAreaInsets();
   const padding = {
-    paddingTop: insets.top + 12,
+    // With a coloured header the header covers the status bar itself.
+    paddingTop: header ? 20 : insets.top + 12,
     paddingBottom: (bottomInset ? insets.bottom : 0) + 24,
   };
 
   if (!scroll) {
-    return <View style={[styles.root, styles.content, padding, contentStyle]}>{children}</View>;
+    return (
+      <View style={styles.root}>
+        {header}
+        <View style={[styles.root, styles.content, padding, contentStyle]}>{children}</View>
+      </View>
+    );
   }
   return (
     <ScrollView
       style={styles.root}
-      contentContainerStyle={[styles.content, padding, contentStyle]}
       keyboardShouldPersistTaps="handled"
       automaticallyAdjustKeyboardInsets
       showsVerticalScrollIndicator={false}>
-      {children}
+      {header}
+      <View style={[styles.content, padding, contentStyle]}>{children}</View>
     </ScrollView>
   );
 }
