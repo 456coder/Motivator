@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "Motivator",
+    "slug": "motivator",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "motivator",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "bundleIdentifier": "com.simranuppal.motivator",
+      "supportsTablet": false,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "web": {
+      "output": "static"
+    },
+    "plugins": [
+      "expo-router",
+      ["expo-splash-screen", { "backgroundColor": "#8E6CFF" }],
+      "expo-font",
+      "expo-status-bar"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
