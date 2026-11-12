@@ -2,11 +2,11 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { Card } from '@/components/Card';
 import { Icon, type IconName } from '@/components/Icon';
-import { border, colors, type } from '@/theme';
+import { areas, colors, radius, type, type Area } from '@/theme';
 
 type Props = {
   icon: IconName;
-  color: string;
+  area: Area;
   title: string;
   /** What this screen will do, one line each. */
   lines: string[];
@@ -14,24 +14,27 @@ type Props = {
 };
 
 /** Placeholder card for screens that are built in a later phase. */
-export function ComingSoon({ icon, color, title, lines, phase }: Props) {
+export function ComingSoon({ icon, area, title, lines, phase }: Props) {
+  const c = areas[area];
   return (
     <Card>
       <View style={styles.top}>
-        <View style={[styles.iconBubble, { backgroundColor: color }]}>
-          <Icon name={icon} size={30} fill={colors.white} />
+        <View style={[styles.iconTile, { backgroundColor: c.soft }]}>
+          <Icon name={icon} size={22} color={c.fill} />
         </View>
         <View style={styles.titles}>
           <Text style={type.cardTitle}>{title}</Text>
           <Text style={type.caption}>Coming in phase {phase}</Text>
         </View>
       </View>
-      {lines.map((line) => (
-        <View key={line} style={styles.line}>
-          <View style={[styles.dot, { backgroundColor: color }]} />
-          <Text style={[type.body, styles.lineText]}>{line}</Text>
-        </View>
-      ))}
+      <View style={styles.lines}>
+        {lines.map((line) => (
+          <View key={line} style={styles.line}>
+            <View style={[styles.dot, { backgroundColor: c.fill }]} />
+            <Text style={[type.body, styles.lineText]}>{line}</Text>
+          </View>
+        ))}
+      </View>
     </Card>
   );
 }
@@ -41,32 +44,34 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    marginBottom: 2,
   },
-  iconBubble: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+  iconTile: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.small,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: border.width,
-    borderColor: border.color,
   },
   titles: {
     flex: 1,
   },
+  lines: {
+    gap: 8,
+    paddingTop: 4,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.line,
+    marginTop: 4,
+  },
   line: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     gap: 10,
+    paddingTop: 4,
   },
   dot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginTop: 5,
-    borderWidth: 2,
-    borderColor: border.color,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
   lineText: {
     flex: 1,

@@ -1,31 +1,24 @@
-import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { Icon, type IconName } from '@/components/Icon';
-import { border, colors, fonts, layout, popShadow, radius, type } from '@/theme';
+import { colors, layout, radius, type } from '@/theme';
 import { tapHaptic } from '@/utils/haptics';
 
 type Props = {
   label: string;
   onPress?: () => void;
   variant?: 'primary' | 'secondary' | 'disabled';
-  /** Background colour of a primary button (default yellow). */
+  /** Background colour of a primary button (default brand purple). */
   color?: string;
   icon?: IconName;
-  /** Optional content on the right, e.g. a count. */
-  right?: ReactNode;
   style?: StyleProp<ViewStyle>;
 };
 
-const SHADOW = { primary: 6, secondary: 4, disabled: 0 };
-
-/**
- * Chunky bubble button. Pressing squishes it down over its shadow, with a haptic tap.
- * primary = colourful and tall · secondary = cream · disabled = grey, can't be pressed.
- */
-export function Button({ label, onPress, variant = 'primary', color, icon, right, style }: Props) {
-  const shadow = SHADOW[variant];
+/** Rounded button. Shrinks slightly when pressed, with a haptic tap. */
+export function Button({ label, onPress, variant = 'primary', color = colors.brand, icon, style }: Props) {
   const disabled = variant === 'disabled';
+  const bg = variant === 'primary' ? color : variant === 'secondary' ? colors.card : colors.disabledBg;
+  const fg = variant === 'primary' ? colors.white : variant === 'secondary' ? colors.ink : colors.disabledText;
 
   return (
     <Pressable
@@ -36,23 +29,15 @@ export function Button({ label, onPress, variant = 'primary', color, icon, right
       onPress={onPress}
       style={({ pressed }) => [
         styles.base,
-        styles[variant],
-        variant === 'primary' && color ? { backgroundColor: color } : null,
-        shadow > 0 && popShadow(shadow),
-        pressed && {
-          // Move down by the shadow's height so the button looks pressed in.
-          transform: [{ translateY: shadow }],
-          shadowOpacity: 0,
-        },
+        { backgroundColor: bg, height: variant === 'primary' ? layout.primaryButtonHeight : layout.secondaryButtonHeight },
+        variant === 'secondary' && styles.secondary,
+        pressed && styles.pressed,
         style,
       ]}>
       <View style={styles.middle}>
-        {icon ? <Icon name={icon} size={variant === 'primary' ? 26 : 22} /> : null}
-        <Text style={[styles.label, variant !== 'primary' && styles.smallLabel, disabled && styles.disabledLabel]}>
-          {label}
-        </Text>
+        {icon ? <Icon name={icon} size={20} color={fg} /> : null}
+        <Text style={[type.button, { color: fg }]}>{label}</Text>
       </View>
-      {right ? <View style={styles.right}>{right}</View> : null}
     </Pressable>
   );
 }
@@ -60,45 +45,22 @@ export function Button({ label, onPress, variant = 'primary', color, icon, right
 const styles = StyleSheet.create({
   base: {
     width: '100%',
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: border.width,
-    borderColor: border.color,
+    borderRadius: radius.button,
     paddingHorizontal: 20,
   },
-  primary: {
-    height: layout.primaryButtonHeight,
-    borderRadius: radius.button,
-    backgroundColor: colors.yellow,
-  },
   secondary: {
-    height: layout.secondaryButtonHeight,
-    borderRadius: 22,
-    backgroundColor: colors.cream,
+    borderWidth: 1.5,
+    borderColor: colors.line,
   },
-  disabled: {
-    height: layout.secondaryButtonHeight,
-    borderRadius: 22,
-    backgroundColor: colors.disabledBg,
+  pressed: {
+    transform: [{ scale: 0.97 }],
+    opacity: 0.9,
   },
   middle: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-  },
-  label: {
-    ...type.button,
-  },
-  smallLabel: {
-    fontFamily: fonts.display,
-    fontSize: 19,
-  },
-  disabledLabel: {
-    color: colors.disabledText,
-  },
-  right: {
-    position: 'absolute',
-    right: 18,
   },
 });

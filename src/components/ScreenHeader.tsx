@@ -1,41 +1,57 @@
 import { router } from 'expo-router';
 import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { BubbleText } from '@/components/BubbleText';
 import { IconButton } from '@/components/IconButton';
-import { colors } from '@/theme';
+import { colors, fonts, type } from '@/theme';
 
 type Props = {
   title: string;
-  /** Colour of the bubble letters. */
-  color?: string;
+  /** Small coloured line above the title (e.g. the date). */
+  eyebrow?: string;
+  eyebrowColor?: string;
   /** Show a back button (default true). */
   back?: boolean;
   /** Optional content on the right, e.g. an IconButton. */
   right?: ReactNode;
 };
 
-/** Top of a screen: optional back button, bubble title, optional right button. */
-export function ScreenHeader({ title, color = colors.yellow, back = true, right }: Props) {
+/** Top of a screen: optional back button, title, optional right button. */
+export function ScreenHeader({ title, eyebrow, eyebrowColor = colors.inkMuted, back = true, right }: Props) {
   return (
-    <View style={styles.row}>
+    <View style={styles.wrap}>
       {back ? <IconButton icon="back" label="Back" onPress={() => router.back()} /> : null}
-      <BubbleText size={back ? 34 : 44} color={color} style={styles.title}>
-        {title}
-      </BubbleText>
-      {right}
+      <View style={styles.row}>
+        <View style={styles.titles}>
+          {eyebrow ? <Text style={[styles.eyebrow, { color: eyebrowColor }]}>{eyebrow}</Text> : null}
+          <Text style={type.screenTitle} numberOfLines={2}>
+            {title}
+          </Text>
+        </View>
+        {right}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  wrap: {
+    gap: 14,
+    marginBottom: 4,
+  },
   row: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     gap: 12,
   },
-  title: {
+  titles: {
     flex: 1,
+  },
+  eyebrow: {
+    fontFamily: fonts.bold,
+    fontSize: 13,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginBottom: 2,
   },
 });

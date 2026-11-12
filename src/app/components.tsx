@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { BubbleText } from '@/components/BubbleText';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Chip } from '@/components/Chip';
@@ -13,7 +12,7 @@ import { ScreenHeader } from '@/components/ScreenHeader';
 import { Segmented } from '@/components/Segmented';
 import { StatusBadge } from '@/components/StatusBadge';
 import { Toggle } from '@/components/Toggle';
-import { colors, pickColors, type } from '@/theme';
+import { areas, colors, pickColors, type } from '@/theme';
 
 const ICONS: IconName[] = [
   'today', 'goals', 'habits', 'calendar', 'gear', 'plus', 'back',
@@ -28,20 +27,22 @@ export default function ComponentsScreen() {
 
   return (
     <Screen bottomInset>
-      <ScreenHeader title="All the pieces" color={colors.cream} />
+      <ScreenHeader title="All the pieces" eyebrow="Design check" />
 
       <Card>
-        <Text style={type.cardTitle}>Bubble writing</Text>
-        <BubbleText size={44} color={colors.yellow}>Motivator</BubbleText>
-        <View style={styles.row}>
-          <BubbleText size={30} color={colors.pink}>Goals</BubbleText>
-          <BubbleText size={30} color={colors.mint}>Habits</BubbleText>
-          <BubbleText size={30} color={colors.sky}>Time</BubbleText>
+        <Text style={type.cardTitle}>Area colours</Text>
+        <View style={styles.wrap}>
+          {(['today', 'goals', 'habits', 'calendar', 'review'] as const).map((a) => (
+            <View key={a} style={[styles.swatch, { backgroundColor: areas[a].soft }]}>
+              <View style={[styles.swatchDot, { backgroundColor: areas[a].fill }]} />
+              <Text style={[type.label, { color: areas[a].text }]}>{a[0].toUpperCase() + a.slice(1)}</Text>
+            </View>
+          ))}
         </View>
       </Card>
 
       <Button label="Primary button" />
-      <Button label="Log progress" icon="plus" color={colors.pink} />
+      <Button label="Log progress" icon="plus" color={areas.goals.fill} />
       <Button label="Secondary button" variant="secondary" />
       <Button label="Disabled button" variant="disabled" />
 
@@ -57,16 +58,16 @@ export default function ComponentsScreen() {
 
       <Card>
         <Text style={type.cardTitle}>Progress bars</Text>
-        <ProgressBar value={0.8} marker={0.6} color={colors.mint} />
-        <ProgressBar value={0.45} marker={0.5} color={colors.sky} />
+        <ProgressBar value={0.8} marker={0.6} color={colors.green} />
+        <ProgressBar value={0.45} marker={0.5} color={colors.blue} />
         <ProgressBar value={0.3} marker={0.55} color={colors.orange} />
         <Text style={type.caption}>The black line marks where you should be by today.</Text>
       </Card>
 
       <View style={styles.wrap}>
-        <Pill icon="flame" iconFill={colors.orange} value="12 days" />
-        <Pill icon="star" iconFill={colors.yellow} value="80%" color={colors.yellowSoft} />
-        <Pill icon="clock" value="45 min" color={colors.skySoft} />
+        <Pill icon="flame" value="12 days" color={colors.orangeSoft} textColor={colors.orangeText} />
+        <Pill icon="star" value="80%" color={colors.amberSoft} textColor={colors.amberText} />
+        <Pill icon="clock" value="45 min" color={colors.blueSoft} textColor={colors.blueText} />
       </View>
 
       <Card>
@@ -101,7 +102,7 @@ export default function ComponentsScreen() {
         <Text style={type.cardTitle}>Icons</Text>
         <View style={styles.wrap}>
           {ICONS.map((name, i) => (
-            <Icon key={name} name={name} size={32} fill={pickColors[i % pickColors.length]} />
+            <Icon key={name} name={name} size={28} color={pickColors[i % pickColors.length]} />
           ))}
         </View>
       </Card>
@@ -110,9 +111,18 @@ export default function ComponentsScreen() {
 }
 
 const styles = StyleSheet.create({
-  row: {
+  swatch: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: 6,
+    paddingHorizontal: 10,
+    height: 32,
+    borderRadius: 999,
+  },
+  swatchDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
   },
   wrap: {
     flexDirection: 'row',

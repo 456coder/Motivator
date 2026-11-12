@@ -17,16 +17,18 @@ App name: **Motivator** (bundle ID `com.simranuppal.motivator`).
 - Expo SDK 58, TypeScript, Expo Router (React Native 0.88). See `AGENTS.md`: add packages with `npx expo install`; run `npm run typecheck` and `npm run lint` before finishing a task.
 - State: Zustand, saved on the phone with AsyncStorage.
 - expo-notifications (reminders), expo-calendar (read events, add time blocks), expo-haptics, react-native-reanimated (animations), react-native-svg (icons, charts), a chart library that works in Expo Go (e.g. react-native-gifted-charts) or plain Views.
-- Fonts: **Baloo 2** (bubble writing: titles, numbers, buttons, labels) and **Nunito** (body text).
+- Font: **Plus Jakarta Sans** (@expo-google-fonts/plus-jakarta-sans).
 
-## Design: "bubble pop"
-Really colourful and inviting.
-- Bright purple background (`colors.bg`), cream cards, a different candy colour for each area: Today = yellow, Goals = pink, Habits = mint, Calendar = sky blue.
-- **Bubble writing:** big titles use `BubbleText` (Baloo 2 ExtraBold, coloured fill with a thick dark outline and a drop shadow).
-- Everything has a thick dark outline (3px `colors.ink`) and a hard offset shadow with no blur (`popShadow()`), so it looks like stickers or bubbles.
-- Chunky rounded buttons that squish down when pressed, with a haptic.
-- **Status colours are always the same:** Ahead = mint, On track = sky, Behind = orange, Off track = pink-red.
-- Icons are simple outlined SVGs in `Icon.tsx`. No emoji in the UI (notification text may use them).
+## Design: clean and colourful
+Clean, modern and calm, with colour used as accents (changed from the "bubble pop" look on 12 Nov 2026: the user found it tacky).
+- Light lavender-grey background (`colors.bg`), white cards with soft blurred shadows (`softShadow`), no thick outlines.
+- One accent colour per area, each with a soft tint and a darker text shade (`areas` in the theme): Today = amber, Goals = rose, Habits = green, Calendar = blue, Review = brand purple.
+- Brand purple (`colors.brand`) for primary buttons and the one bold block on Today (the score card).
+- Font: **Plus Jakarta Sans** everywhere (ExtraBold titles and big numbers, Bold buttons and card titles, SemiBold labels, Medium body).
+- Buttons are rounded (radius 16) and shrink slightly when pressed, with a haptic.
+- **Status colours are always the same:** Ahead = green, On track = blue, Behind = orange, Off track = red (tinted badge with a dot).
+- Progress bars are slim; a dark tick marks where you should be by today.
+- Icons are thin outlined SVGs in `Icon.tsx`, coloured with the area colour. No emoji in the UI (notification text may use them).
 - All colours, fonts, radii and shadows live in `src/theme.ts`. Never hard-code a new colour.
 - Light mode only.
 
@@ -55,7 +57,7 @@ Really colourful and inviting.
 5. **Calendar:** today's agenda with events and suggested blocks; a month view of hit/missed days.
 
 ## Screens
-- Tabs: **Today**, **Goals**, **Habits**, **Calendar** (custom bubble tab bar; the active tab is filled with its colour).
+- Tabs: **Today**, **Goals**, **Habits**, **Calendar** (custom white tab bar; the active tab's icon sits in a soft pill of its area colour).
 - Other screens: Goal detail (`/goal/[id]`), New goal (`/goal/new`), New habit (`/habit/new`), Weekly review (`/review`), Settings (`/settings`, opened from the gear on Today), Components gallery (`/components`, for testing the shared components).
 
 ## Folders
@@ -82,4 +84,4 @@ Screens in `src/app/`, components in `src/components/` (PascalCase), rules in `s
 9. Polish, then App Store prep
 
 ## Decisions log
-- **12 Nov 2026:** Name Motivator. Really colourful "bubble pop" look with bubble writing. Reminders twice a day (morning + evening) by default. No AI in version 1; the calendar planning is rule-based. AI may be added later inside goal creation, calendar reading and the weekly review.
+- **12 Nov 2026:** Name Motivator. First tried a loud "bubble pop" look with bubble writing; the user found it tacky, so the design is now clean and colourful (light background, white cards, colour as accents, Plus Jakarta Sans). Reminders twice a day (morning + evening) by default. No AI in version 1; the calendar planning is rule-based. AI may be added later inside goal creation, calendar reading and the weekly review.

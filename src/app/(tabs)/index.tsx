@@ -4,12 +4,13 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { ComingSoon } from '@/components/ComingSoon';
+import { Icon } from '@/components/Icon';
 import { IconButton } from '@/components/IconButton';
-import { BubbleText } from '@/components/BubbleText';
 import { Pill } from '@/components/Pill';
 import { ProgressBar } from '@/components/ProgressBar';
 import { Screen } from '@/components/Screen';
-import { areaColors, colors, fonts, type } from '@/theme';
+import { ScreenHeader } from '@/components/ScreenHeader';
+import { areas, colors, fonts, radius, type } from '@/theme';
 
 /** Today: the daily plan, score and streak. (Placeholder until phase 2.) */
 export default function TodayScreen() {
@@ -17,37 +18,49 @@ export default function TodayScreen() {
 
   return (
     <Screen>
-      <View style={styles.header}>
-        <View style={styles.titles}>
-          <Text style={styles.date}>{date}</Text>
-          <BubbleText size={48} color={areaColors.today}>
-            Today
-          </BubbleText>
+      <ScreenHeader
+        back={false}
+        eyebrow={date}
+        eyebrowColor={areas.today.text}
+        title="Today"
+        right={<IconButton icon="gear" label="Settings" onPress={() => router.push('/settings')} />}
+      />
+
+      {/* Score card: brand colour, the one bold block on the screen. */}
+      <View style={styles.scoreCard}>
+        <View style={styles.scoreTop}>
+          <View>
+            <Text style={styles.scoreLabel}>Today&apos;s score</Text>
+            <Text style={styles.scoreNumber}>0%</Text>
+          </View>
+          <View style={styles.streak}>
+            <Icon name="flame" size={18} color={colors.white} />
+            <Text style={styles.streakText}>0 day streak</Text>
+          </View>
         </View>
-        <IconButton icon="gear" label="Settings" onPress={() => router.push('/settings')} />
+        <View style={styles.scoreTrack}>
+          <View style={[styles.scoreFill, { width: '0%' }]} />
+        </View>
+        <Text style={styles.scoreHint}>Finish every habit and task to keep your streak.</Text>
       </View>
 
       <View style={styles.pills}>
-        <Pill icon="flame" iconFill={colors.orange} value="0 days" />
-        <Pill icon="star" iconFill={colors.yellow} value="0% today" />
+        <Pill icon="habits" value="0 of 0 habits" color={areas.habits.soft} textColor={areas.habits.text} />
+        <Pill icon="goals" value="0 goals" color={areas.goals.soft} textColor={areas.goals.text} />
       </View>
 
-      <Card color={colors.yellowSoft}>
-        <Text style={type.cardTitle}>Today&apos;s score</Text>
-        <ProgressBar value={0} color={colors.yellow} />
-        <Text style={type.caption}>Tick off habits and goal tasks to fill this up.</Text>
+      <Card>
+        <Text style={type.cardTitle}>Up next</Text>
+        <ProgressBar value={0} />
+        <Text style={type.caption}>Your plan for today will show here.</Text>
       </Card>
 
       <ComingSoon
         icon="today"
-        color={areaColors.today}
+        area="today"
         title="Your daily plan"
         phase={2}
-        lines={[
-          'Habits to tick off today',
-          'Goal tasks fitted into your free time',
-          'Daily score and streak',
-        ]}
+        lines={['Habits to tick off today', 'Goal tasks fitted into your free time', 'Daily score and streak']}
       />
 
       <Button label="See all the pieces" variant="secondary" onPress={() => router.push('/components')} />
@@ -56,22 +69,59 @@ export default function TodayScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: {
+  scoreCard: {
+    backgroundColor: colors.brand,
+    borderRadius: radius.card,
+    padding: 20,
+    gap: 12,
+  },
+  scoreTop: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
     justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
-  titles: {
-    flex: 1,
+  scoreLabel: {
+    fontFamily: fonts.semi,
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.8)',
   },
-  date: {
-    fontFamily: fonts.display,
-    fontSize: 18,
-    color: colors.cream,
-    marginLeft: 4,
+  scoreNumber: {
+    ...type.bigNumber,
+    fontSize: 44,
+    color: colors.white,
+  },
+  streak: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 12,
+    height: 32,
+    borderRadius: radius.pill,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+  },
+  streakText: {
+    fontFamily: fonts.bold,
+    fontSize: 13,
+    color: colors.white,
+  },
+  scoreTrack: {
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    overflow: 'hidden',
+  },
+  scoreFill: {
+    height: '100%',
+    borderRadius: 5,
+    backgroundColor: colors.white,
+  },
+  scoreHint: {
+    fontFamily: fonts.medium,
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.85)',
   },
   pills: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 8,
   },
 });

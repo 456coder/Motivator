@@ -4,7 +4,7 @@ import { ComingSoon } from '@/components/ComingSoon';
 import { IconButton } from '@/components/IconButton';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
-import { areaColors, colors } from '@/theme';
+import { areas, colors } from '@/theme';
 
 /** Habits list. (Placeholder until phase 2.) */
 export default function HabitsScreen() {
@@ -12,20 +12,23 @@ export default function HabitsScreen() {
     <Screen>
       <ScreenHeader
         title="Habits"
-        color={areaColors.habits}
         back={false}
-        right={<IconButton icon="plus" label="New habit" color={colors.mint} onPress={() => router.push('/habit/new')} />}
+        right={
+          <IconButton
+            icon="plus"
+            label="New habit"
+            color={areas.habits.fill}
+            iconColor={colors.white}
+            onPress={() => router.push('/habit/new')}
+          />
+        }
       />
       <ComingSoon
         icon="habits"
-        color={areaColors.habits}
+        area="habits"
         title="Daily habits"
         phase={2}
-        lines={[
-          'Pick the days and a target (e.g. 8 glasses)',
-          'Tick them off and build streaks',
-          'Morning and evening reminders',
-        ]}
+        lines={['Pick the days and a target (e.g. 8 glasses)', 'Tick them off and build streaks', 'Morning and evening reminders']}
       />
     </Screen>
   );

@@ -1,30 +1,35 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { border, colors, fonts, radius, statusColors, type TrackStatus } from '@/theme';
+import { fonts, radius, statusColors, type TrackStatus } from '@/theme';
 
-/** Coloured badge: Ahead / On track / Behind / Off track. */
+/** Tinted badge: Ahead / On track / Behind / Off track. */
 export function StatusBadge({ status }: { status: TrackStatus }) {
   const c = statusColors[status];
   return (
-    <View style={[styles.badge, { backgroundColor: c.fill }]}>
-      <Text style={styles.text}>{c.label}</Text>
+    <View style={[styles.badge, { backgroundColor: c.soft }]}>
+      <View style={[styles.dot, { backgroundColor: c.fill }]} />
+      <Text style={[styles.text, { color: c.text }]}>{c.label}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   badge: {
+    flexDirection: 'row',
+    alignItems: 'center',
     alignSelf: 'flex-start',
-    paddingHorizontal: 12,
-    paddingTop: 3,
-    paddingBottom: 1,
+    gap: 6,
+    paddingHorizontal: 10,
+    height: 26,
     borderRadius: radius.pill,
-    borderWidth: border.thin,
-    borderColor: border.color,
+  },
+  dot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
   },
   text: {
-    fontFamily: fonts.display,
-    fontSize: 15,
-    color: colors.ink,
+    fontFamily: fonts.bold,
+    fontSize: 12,
   },
 });

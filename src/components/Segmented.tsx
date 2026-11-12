@@ -1,17 +1,16 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { border, colors, fonts, radius } from '@/theme';
+import { colors, fonts, radius, softShadow } from '@/theme';
 import { tapHaptic } from '@/utils/haptics';
 
 type Props<T extends string> = {
   options: { value: T; label: string }[];
   value: T;
   onChange: (value: T) => void;
-  color?: string;
 };
 
 /** Row of joined buttons where one is picked (e.g. Day / Week / Month). */
-export function Segmented<T extends string>({ options, value, onChange, color = colors.yellow }: Props<T>) {
+export function Segmented<T extends string>({ options, value, onChange }: Props<T>) {
   return (
     <View style={styles.row}>
       {options.map((o) => {
@@ -23,8 +22,8 @@ export function Segmented<T extends string>({ options, value, onChange, color = 
             accessibilityState={{ selected }}
             onPressIn={tapHaptic}
             onPress={() => onChange(o.value)}
-            style={[styles.option, selected && { backgroundColor: color, borderColor: border.color }]}>
-            <Text style={styles.label}>{o.label}</Text>
+            style={[styles.option, selected && [styles.selected, softShadow]]}>
+            <Text style={[styles.label, selected && styles.selectedLabel]}>{o.label}</Text>
           </Pressable>
         );
       })}
@@ -35,26 +34,26 @@ export function Segmented<T extends string>({ options, value, onChange, color = 
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    padding: 4,
-    gap: 4,
-    backgroundColor: colors.cream,
-    borderRadius: radius.pill,
-    borderWidth: border.width,
-    borderColor: border.color,
+    padding: 3,
+    backgroundColor: colors.line,
+    borderRadius: radius.small,
   },
   option: {
     flex: 1,
-    height: 40,
+    height: 34,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: radius.pill,
-    borderWidth: border.thin,
-    borderColor: 'transparent',
+    borderRadius: 10,
+  },
+  selected: {
+    backgroundColor: colors.card,
   },
   label: {
-    fontFamily: fonts.display,
-    fontSize: 16,
+    fontFamily: fonts.semi,
+    fontSize: 14,
+    color: colors.inkMuted,
+  },
+  selectedLabel: {
     color: colors.ink,
-    marginTop: 2,
   },
 });

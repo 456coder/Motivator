@@ -4,16 +4,16 @@ import { Button } from '@/components/Button';
 import { ComingSoon } from '@/components/ComingSoon';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
-import { colors } from '@/theme';
+
 
 /** Settings. (Placeholder; filled in over later phases.) */
 export default function SettingsScreen() {
   return (
     <Screen bottomInset>
-      <ScreenHeader title="Settings" color={colors.cream} />
+      <ScreenHeader title="Settings" />
       <ComingSoon
         icon="bell"
-        color={colors.orange}
+        area="today"
         title="Reminders and more"
         phase={6}
         lines={[

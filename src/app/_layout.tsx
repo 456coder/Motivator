@@ -1,9 +1,9 @@
 import {
-  Baloo2_600SemiBold,
-  Baloo2_700Bold,
-  Baloo2_800ExtraBold,
-} from '@expo-google-fonts/baloo-2';
-import { Nunito_700Bold, Nunito_800ExtraBold } from '@expo-google-fonts/nunito';
+  PlusJakartaSans_500Medium,
+  PlusJakartaSans_600SemiBold,
+  PlusJakartaSans_700Bold,
+  PlusJakartaSans_800ExtraBold,
+} from '@expo-google-fonts/plus-jakarta-sans';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -22,11 +22,10 @@ SplashScreen.preventAutoHideAsync();
  */
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
-    Baloo2_600SemiBold,
-    Baloo2_700Bold,
-    Baloo2_800ExtraBold,
-    Nunito_700Bold,
-    Nunito_800ExtraBold,
+    PlusJakartaSans_500Medium,
+    PlusJakartaSans_600SemiBold,
+    PlusJakartaSans_700Bold,
+    PlusJakartaSans_800ExtraBold,
   });
   const ready = fontsLoaded || fontError !== null;
 

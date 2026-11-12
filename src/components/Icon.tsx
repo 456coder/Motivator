@@ -28,7 +28,7 @@ type Props = {
 
 /** Simple outlined icons, drawn on a 24×24 grid with a thick ink stroke. */
 export function Icon({ name, size = 24, color = colors.ink, fill = 'none' }: Props) {
-  const s = { stroke: color, strokeWidth: 2.4, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
+  const s = { stroke: color, strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
       {name === 'today' && (
@@ -82,12 +82,12 @@ export function Icon({ name, size = 24, color = colors.ink, fill = 'none' }: Pro
       )}
       {name === 'plus' && (
         <>
-          <Line x1={12} y1={5} x2={12} y2={19} {...s} strokeWidth={3} />
-          <Line x1={5} y1={12} x2={19} y2={12} {...s} strokeWidth={3} />
+          <Line x1={12} y1={5} x2={12} y2={19} {...s} strokeWidth={2.4} />
+          <Line x1={5} y1={12} x2={19} y2={12} {...s} strokeWidth={2.4} />
         </>
       )}
-      {name === 'back' && <Path d="M15 5l-7 7 7 7" fill="none" {...s} strokeWidth={3} />}
-      {name === 'check' && <Path d="M5 12.5l4.5 4.5L19 7.5" fill="none" {...s} strokeWidth={3} />}
+      {name === 'back' && <Path d="M15 5l-7 7 7 7" fill="none" {...s} strokeWidth={2.4} />}
+      {name === 'check' && <Path d="M5 12.5l4.5 4.5L19 7.5" fill="none" {...s} strokeWidth={2.4} />}
       {name === 'flame' && (
         <Path
           d="M12 21.5c-4.1 0-7-2.8-7-6.6 0-3.3 2.2-5.4 3.6-7.3.4 1.8 1.3 2.9 2.4 3.4-.3-3.3 1.3-6.2 3.7-8.5.3 3.3 1.6 5 3 6.8 1.1 1.4 2.3 3.1 2.3 5.6 0 3.8-3.1 6.6-8 6.6z"
