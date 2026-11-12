@@ -38,7 +38,7 @@ Clean and calm with muted, dusty colours (12 Nov 2026: the loud "bubble pop" loo
 - **Reminders: 2 a day by default — morning (today's plan) and evening (what's still not done).** Wording gets firmer the further behind you are. More can be turned on in Settings later.
 - **No quiet backing out:** moving a deadline or lowering a target needs a written reason, kept in the goal's change history.
 - **Daily score:** % of today's habits and goal tasks done. The streak only counts days at 100% (threshold adjustable in Settings).
-- **Weekly review:** Sunday evening the app opens on a review of the week (what you hit, what you missed, what changes) before anything else.
+- **Check-ins:** weekly, monthly and yearly (see Check-ins). The weekly one opens by itself on Sunday evening before anything else.
 
 ## Calendar and time planning (rules, no AI)
 - Read the iPhone calendar (expo-calendar). Free time each day = waking hours (set in Settings) − events − a short buffer around each event.
@@ -49,16 +49,40 @@ Clean and calm with muted, dusty colours (12 Nov 2026: the loud "bubble pop" loo
 - Learn when you usually complete things (e.g. evenings) and book those times first.
 - **AI later (not now):** understanding what events mean, turning vague goals into plans, and smarter weekly reviews. It would be built into those three places, not a separate "coach" screen.
 
-## Features (v1)
-1. **Habits:** name, colour, which days, target (yes/no, or an amount such as 8 glasses), reminder time, streak.
-2. **Goals + milestones:** a target (a number such as £5,000 saved, or done/not done), start date, deadline, milestones (title, date, target). Log progress entries (date, amount, note).
-3. **On-track tracker:** expected value today against your actual value, with the status, the pace you need and the days left.
-4. **Charts:** actual against expected line for each goal, habit heatmaps, weekly scores.
-5. **Calendar:** today's agenda with events and suggested blocks; a month view of hit/missed days.
+## The goal ladder (decided 12 Nov 2026)
+Big goals are broken down into levels. Each goal can "support" one goal on a higher level, and any level can be skipped.
+| Level | Example | Tracked by |
+|---|---|---|
+| 5-year vision | Own my own flat | progress of the goals under it |
+| 3-year goal | Save a £30k deposit | a number target, or the goals under it |
+| 1-year goal | Save £10,000 this year | a number target: expected vs. actual, Ahead/Behind |
+| 90-day milestone | £2,500 by end of March | a number target or done/not done, with a deadline |
+| This week's focus | Cancel 2 subscriptions | ticked off (shows on Today) |
+| Daily habits | Log spending | Phase 2 habits; a habit can support a goal |
+- Goal kinds: **number** (start → target in a unit, e.g. £ or km; progress logged with notes), **done / not done**, or **by the goals under it** (progress = average of its child goals).
+- Status from time elapsed vs. progress made: within ±5% = On track, ahead by more = Ahead, up to 20% behind = Behind, worse (or past the deadline) = Off track.
+- Pace: "You need £29 a week now (planned £25)": remaining ÷ time left, per day (≤ 31 days left), per week (≤ 6 months) or per month.
+- "Build your plan": a guided flow from the 5-year vision down to this week's focus and a first habit, each step skippable, each new goal linked to the one before.
+- **Plan view** (`/plan`): the whole tree on one screen.
+
+## Check-ins (decided 12 Nov 2026)
+| Check-in | Default | Purpose |
+|---|---|---|
+| Daily | morning + evening reminders | plan the day; evening nudge |
+| Weekly | Sunday evening, ~5 min | hit / missed, choose next week's focus |
+| Monthly | 1st of the month, ~10 min | each 1-year goal vs. where it should be, adjust; every 3rd month also sets the next 90-day milestones (no separate quarterly) |
+| Yearly | 1 January (changeable), ~20–30 min | score the year, update 3- and 5-year goals, set new 1-year goals |
+
+## Reminders: the user chooses
+Each can be switched on/off with its own time in Settings: morning plan and evening nudge (on by default), a time per habit, weekly / monthly / yearly check-ins, deadline warnings (milestone due in 7 days and tomorrow), "falling behind" alerts.
+
+## Other features (v1)
+- **Charts:** actual vs. expected line for each goal, habit heatmaps, weekly scores.
+- **Calendar:** today's agenda with events and suggested blocks; a month view of hit/missed days.
 
 ## Screens
 - Tabs: **Today**, **Goals**, **Habits**, **Calendar** (custom white tab bar; the active tab's icon sits in a soft pill of its area colour). Today: greeting header with score / streak / habits-done stats, then shelves for today's habits, goals to push and your time today.
-- Other screens: Goal detail (`/goal/[id]`), New goal (`/goal/new`), New habit (`/habit/new`), Weekly review (`/review`), Settings (`/settings`, opened from the gear on Today), Components gallery (`/components`, for testing the shared components).
+- Other screens: Goal detail (`/goal/[id]`), New / edit goal (`/goal/new`), Plan tree (`/plan`), New / edit habit (`/habit/new`), Habit (`/habit/[id]`), Check-ins (`/review`), Settings (`/settings`, opened from the gear on Today), Components gallery (`/components`).
 
 ## Folders
 Screens in `src/app/`, components in `src/components/` (PascalCase), rules in `src/logic/` (pure functions), saved data + actions in `src/store/`, helpers in `src/utils/`, numbers and switches in `src/config.ts`.
@@ -73,14 +97,14 @@ Screens in `src/app/`, components in `src/components/` (PascalCase), rules in `s
 - **Settings:** remindersPerDay (2), morningTime, eveningTime, wakeTime, sleepTime, streakThreshold (100%), calendarIds to read/write
 
 ## Build order (one phase at a time, iPhone test after each)
-1. Project setup, theme, fonts, shared components, navigation + tab bar, placeholder screens
-2. Habits: create, tick off, streaks, Today screen
-3. Goals + milestones + progress logging
-4. On-track maths + status + catch-up pace
+1. Project setup, theme, fonts, shared components, navigation + tab bar, placeholder screens ✅
+2. Habits: create, tick off, streaks, Today screen ✅
+3. The goal ladder: 5-year / 3-year / 1-year goals, 90-day milestones, this week's focus, linking goals and habits, logging progress, status + pace, Plan view, "Build your plan"
+4. Change history ("no quiet backing out") + goal detail polish
 5. Charts + history
-6. Reminders (morning + evening) + daily score
+6. Reminders with on/off choices + daily score
 7. Calendar: read events, free time, time allocation, add blocks
-8. Weekly review + change history
+8. Weekly, monthly and yearly check-ins
 9. Polish, then App Store prep
 
 ## Decisions log
@@ -91,3 +115,13 @@ Screens in `src/app/`, components in `src/components/` (PascalCase), rules in `s
   - **Habit page** (`/habit/[id]`): today (tick or − / +), streak / best / last-30-days %, a 5-week grid (done / missed / not due, today outlined), Edit (`/habit/new?id=…`), Archive (stops counting, keeps history) and Delete (asks first; removes history).
   - **Habits tab:** shelves by time of day, plus Archived. Reminder times come in phase 6.
   - Rule checks: `npx tsx scripts/test-habits.ts`.
+- **Goal ladder + check-ins (12 Nov 2026):** user asked for 5-year / 3-year / 1-year goals broken down to daily habits, with reminders they can choose, and weekly / monthly / yearly check-ins. Added a 90-day milestone level (a year is too far away to feel urgent) and "this week's focus". Quarterly is folded into every third monthly check-in. Defaults: weekly check-in Sunday evening, yearly on 1 January (both changeable later).
+- **Phase 3, the goal ladder (built 12 Nov 2026):** rules in `src/logic/goals.ts` (levels, progress, status, pace, roll-up), saved as `goals` + `goalLogs` (store version 2; version 1 saves are upgraded with empty goals).
+  - A goal has a level, an optional parent ("Supports"), a kind (A number / Done or not / By its steps), unit, start, target, current value, start date and deadline. Deadlines default by level (5 y, 3 y, 1 y, 90 days, this Sunday). Number goals are done automatically when the target is reached (works for goals that go down, e.g. weight).
+  - **Goals tab:** one shelf per level, cards coloured by status (Ahead / On track / Behind / Off track / Done / No steps yet in `goalLooks`), "See the whole plan", Archived.
+  - **Build your plan** (`/goal/new?level=five&flow=1`): steps 1–5 are the goal levels, each linked to the one before; step 6 adds a daily habit linked to the goal above this week's focus (the focus only lasts a week); every step can be skipped; ends on the Plan view.
+  - **Goal page:** status, current value vs. where it should be by today (black tick on the bar), pace box ("You need £907 a month now (planned £834)"), Log progress (Add to it / New total + note), Mark as done, the goal it supports, steps under it (+ add one), habits for it (+ new habit for it), history (entries can be removed), Archive, Delete (children and habits move up to its parent).
+  - **Plan view** (`/plan`): the tree from the 5-year vision down to habits, plus habits not linked to a goal.
+  - **Today:** "This week's focus" shelf (tap to tick off) or a prompt to set one, and "Goals that need a push" (Behind / Off track, not week-level).
+  - Habits can support a goal (picker on the habit form; shown on the habit page). Tile ticks moved to the bottom-right corner so long titles never push them off the card.
+  - Rule checks: `npx tsx scripts/test-goals.ts`. Dates use `@react-native-community/datetimepicker` (compact picker on iPhone).

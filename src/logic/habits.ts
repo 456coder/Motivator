@@ -18,6 +18,8 @@ export type Habit = {
   time: TimeOfDay;
   createdAt: DateKey;
   archived: boolean;
+  /** The goal this habit supports (optional). */
+  goalId?: string | null;
 };
 
 /** For each day, how much of each habit was done: logs[day][habitId] = amount. */

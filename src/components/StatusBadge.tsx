@@ -1,10 +1,11 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { fonts, radius, statusColors, type TrackStatus } from '@/theme';
+import type { Status } from '@/logic/goals';
+import { fonts, goalLooks, radius } from '@/theme';
 
-/** Tinted badge: Ahead / On track / Behind / Off track. */
-export function StatusBadge({ status }: { status: TrackStatus }) {
-  const c = statusColors[status];
+/** Tinted badge: Ahead / On track / Behind / Off track / Done / No steps yet. */
+export function StatusBadge({ status }: { status: Status }) {
+  const c = goalLooks[status];
   return (
     <View style={[styles.badge, { backgroundColor: c.soft }]}>
       <View style={[styles.dot, { backgroundColor: c.fill }]} />

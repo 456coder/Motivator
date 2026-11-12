@@ -14,7 +14,7 @@ type Props = {
   color: string;
   /** Optional 0–1 progress shown as a thin white bar. */
   progress?: number;
-  /** Optional content in the top-right corner (e.g. a tick). */
+  /** Optional content in the bottom-right corner (e.g. a tick). */
   corner?: ReactNode;
   onPress?: () => void;
   /** Press and hold (e.g. to open details). */
@@ -41,20 +41,20 @@ export function Tile({ title, footer, tag, color, progress, corner, onPress, onL
         muted && styles.muted,
         pressed && styles.pressed,
       ]}>
-      <View style={styles.top}>
-        <Text style={styles.title} numberOfLines={4}>
-          {title}
-        </Text>
-        {corner}
-      </View>
-      <View style={styles.bottom}>
-        {progress !== undefined ? (
-          <View style={styles.track}>
-            <View style={[styles.fill, { width: `${Math.max(0, Math.min(1, progress)) * 100}%` }]} />
-          </View>
-        ) : null}
-        {tag ? <Text style={styles.tag}>{tag}</Text> : null}
-        {footer ? <Text style={styles.footer}>{footer}</Text> : null}
+      <Text style={styles.title} numberOfLines={4}>
+        {title}
+      </Text>
+      <View style={styles.bottomRow}>
+        <View style={styles.bottom}>
+          {progress !== undefined ? (
+            <View style={styles.track}>
+              <View style={[styles.fill, { width: `${Math.max(0, Math.min(1, progress)) * 100}%` }]} />
+            </View>
+          ) : null}
+          {tag ? <Text style={styles.tag}>{tag}</Text> : null}
+          {footer ? <Text style={styles.footer}>{footer}</Text> : null}
+        </View>
+        {corner ? <View style={styles.corner}>{corner}</View> : null}
       </View>
     </Pressable>
   );
@@ -74,18 +74,22 @@ const styles = StyleSheet.create({
   pressed: {
     transform: [{ scale: 0.97 }],
   },
-  top: {
+  bottomRow: {
     flexDirection: 'row',
-    gap: 6,
+    alignItems: 'flex-end',
+    gap: 8,
+  },
+  corner: {
+    flexShrink: 0,
   },
   title: {
-    flex: 1,
     fontFamily: fonts.bold,
     fontSize: 16,
     lineHeight: 21,
     color: onColor.title,
   },
   bottom: {
+    flex: 1,
     gap: 4,
   },
   track: {

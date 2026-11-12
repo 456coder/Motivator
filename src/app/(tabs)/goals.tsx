@@ -1,46 +1,83 @@
 import { router } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
 
-import { ComingSoon } from '@/components/ComingSoon';
+import { Button } from '@/components/Button';
+import { EmptyState } from '@/components/EmptyState';
+import { GoalTile } from '@/components/GoalTile';
 import { HeaderBlock } from '@/components/HeaderBlock';
 import { Screen } from '@/components/Screen';
 import { Shelf } from '@/components/Shelf';
-import { Tile } from '@/components/Tile';
-import { areas, statusColors } from '@/theme';
+import { useToday } from '@/hooks/useToday';
+import { LEVELS, sortGoals } from '@/logic/goals';
+import { useStore } from '@/store/useStore';
+import { areas } from '@/theme';
 
-/** Goals, grouped by how on track they are. Example cards until phase 3. */
+/** All goals, one shelf per level of the ladder. */
 export default function GoalsScreen() {
+  const goals = useStore((s) => s.goals);
+  const today = useToday();
+  const active = sortGoals(goals.filter((g) => !g.archived));
+  const archived = goals.filter((g) => g.archived);
+  const build = () => router.push({ pathname: '/goal/new', params: { level: 'five', flow: '1' } });
+  const add = () => router.push('/goal/new');
+
   return (
     <Screen
       header={
         <HeaderBlock
           title="Goals"
-          subtitle="Where you are vs. where you should be"
+          subtitle="From 5 years down to this week"
           color={areas.goals.fill}
-          action={{ icon: 'plus', label: 'New goal', onPress: () => router.push('/goal/new') }}
+          action={{ icon: 'plus', label: 'New goal', onPress: add }}
         />
       }>
-      <Shelf title="Needs a push">
-        <Tile
-          title="Save £5,000 by March"
-          tag="Behind"
-          footer="£1,800 of £5,000"
-          progress={0.36}
-          color={statusColors.behind.fill}
-          onPress={() => router.push('/goal/sample')}
-        />
-        <Tile title="Run a half marathon" tag="Off track" footer="6 of 21 km" progress={0.28} color={statusColors.offTrack.fill} />
-      </Shelf>
-      <Shelf title="Going well">
-        <Tile title="Finish my Spanish course" tag="On track" footer="Unit 6 of 12" progress={0.5} color={statusColors.onTrack.fill} />
-        <Tile title="Read 24 books this year" tag="Ahead" footer="21 of 24" progress={0.88} color={statusColors.ahead.fill} />
-      </Shelf>
-      <ComingSoon
-        icon="goals"
-        area="goals"
-        title="Your own goals"
-        phase={3}
-        lines={['Goals with a target and a deadline', 'Milestones along the way', 'Ahead / On track / Behind for each one']}
-      />
+      {active.length === 0 ? (
+        <>
+          <EmptyState
+            icon="goals"
+            color={areas.goals.fill}
+            soft={areas.goals.soft}
+            title="Build your plan"
+            body="Start with where you want to be in 5 years, then break it down to this year, the next 90 days and this week. Skip any step you like."
+            action={{ label: 'Build your plan', onPress: build }}
+          />
+          <Button label="Just add one goal" variant="secondary" onPress={add} />
+        </>
+      ) : (
+        <>
+          <View style={styles.row}>
+            <Button label="See the whole plan" icon="chart" variant="secondary" onPress={() => router.push('/plan')} style={styles.flex} />
+          </View>
+          {LEVELS.map((l) => {
+            const group = active.filter((g) => g.level === l.id);
+            if (group.length === 0) return null;
+            return (
+              <Shelf key={l.id} title={l.plural}>
+                {group.map((g) => (
+                  <GoalTile key={g.id} goal={g} today={today} />
+                ))}
+              </Shelf>
+            );
+          })}
+          <Button label="Build your plan again" variant="secondary" onPress={build} />
+        </>
+      )}
+      {archived.length > 0 ? (
+        <Shelf title="Archived">
+          {archived.map((g) => (
+            <GoalTile key={g.id} goal={g} today={today} />
+          ))}
+        </Shelf>
+      ) : null}
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+  },
+  flex: {
+    flex: 1,
+  },
+});

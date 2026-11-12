@@ -7,6 +7,7 @@ import { Card } from '@/components/Card';
 import { ColorPicker } from '@/components/ColorPicker';
 import { DayPicker } from '@/components/DayPicker';
 import { FieldLabel } from '@/components/FieldLabel';
+import { GoalPicker } from '@/components/GoalPicker';
 import { HeaderBlock } from '@/components/HeaderBlock';
 import { Screen } from '@/components/Screen';
 import { Segmented } from '@/components/Segmented';
@@ -14,13 +15,15 @@ import { Stepper } from '@/components/Stepper';
 import { TextField } from '@/components/TextField';
 import { TIMES, type TimeOfDay } from '@/logic/habits';
 import { useStore } from '@/store/useStore';
-import { areas, type } from '@/theme';
+import { areas, colors, type } from '@/theme';
 import { successHaptic } from '@/utils/haptics';
 
 /** Create a habit, or edit one (when opened with ?id=…). */
 export default function HabitFormScreen() {
-  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { id, goalId: presetGoal, flow: flowParam } = useLocalSearchParams<{ id?: string; goalId?: string; flow?: string }>();
+  const flow = flowParam === '1';
   const existing = useStore((s) => s.habits.find((h) => h.id === id));
+  const goals = useStore((s) => s.goals);
   const addHabit = useStore((s) => s.addHabit);
   const updateHabit = useStore((s) => s.updateHabit);
 
@@ -31,6 +34,8 @@ export default function HabitFormScreen() {
   const [target, setTarget] = useState(existing && existing.target > 1 ? existing.target : 8);
   const [unit, setUnit] = useState(existing?.unit ?? '');
   const [time, setTime] = useState<TimeOfDay>(existing?.time ?? 'anytime');
+  const [goalId, setGoalId] = useState<string | null>(existing?.goalId ?? presetGoal ?? null);
+  const activeGoals = goals.filter((g) => !g.archived);
 
   const trimmed = name.trim();
   const problem = !trimmed ? 'Give your habit a name' : days.length === 0 ? 'Pick at least one day' : null;
@@ -44,17 +49,30 @@ export default function HabitFormScreen() {
       target: kind === 'count' ? target : 1,
       unit: kind === 'count' ? unit.trim() : '',
       time,
+      goalId,
     };
     if (existing) updateHabit(existing.id, habit);
     else addHabit(habit);
     successHaptic();
-    router.back();
+    // At the end of "Build your plan", show the whole plan.
+    if (flow) router.replace('/plan');
+    else router.back();
   };
 
   return (
     <Screen
       bottomInset
-      header={<HeaderBlock back title={existing ? 'Edit habit' : 'New habit'} subtitle="Small steps, every day" color={color} />}>
+      header={
+        <HeaderBlock
+          back
+          title={existing ? 'Edit habit' : 'New habit'}
+          subtitle={flow ? 'Build your plan · step 6 of 6' : 'Small steps, every day'}
+          color={color}
+        />
+      }>
+      {flow ? (
+        <Text style={[type.body, styles.intro]}>Last step: one small thing you&apos;ll do every day to keep it moving.</Text>
+      ) : null}
       <Card>
         <TextField
           label="Habit"
@@ -101,6 +119,13 @@ export default function HabitFormScreen() {
         <Segmented value={time} onChange={setTime} options={TIMES} />
       </Card>
 
+      {activeGoals.length > 0 ? (
+        <Card>
+          <FieldLabel>Supports a goal (optional)</FieldLabel>
+          <GoalPicker goals={activeGoals} value={goalId} onChange={setGoalId} color={color} />
+        </Card>
+      ) : null}
+
       {problem ? <Text style={[type.caption, styles.problem]}>{problem}</Text> : null}
       <Button
         label={existing ? 'Save changes' : 'Add habit'}
@@ -108,6 +133,7 @@ export default function HabitFormScreen() {
         color={color}
         onPress={save}
       />
+      {flow ? <Button label="Skip this step" variant="secondary" onPress={() => router.replace('/plan')} /> : null}
     </Screen>
   );
 }
@@ -123,5 +149,10 @@ const styles = StyleSheet.create({
   },
   problem: {
     textAlign: 'center',
+  },
+  intro: {
+    color: colors.inkMuted,
+    textAlign: 'center',
+    paddingHorizontal: 8,
   },
 });

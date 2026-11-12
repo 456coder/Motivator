@@ -1,5 +1,5 @@
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
-import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
@@ -9,6 +9,7 @@ import { Screen } from '@/components/Screen';
 import { Stepper } from '@/components/Stepper';
 import { useToday } from '@/hooks/useToday';
 import { addDays, weekday, WEEK } from '@/logic/dates';
+import { levelInfo } from '@/logic/goals';
 import {
   amountOn,
   bestStreak,
@@ -22,19 +23,8 @@ import {
 } from '@/logic/habits';
 import { useStore } from '@/store/useStore';
 import { colors, fonts, radius, type } from '@/theme';
+import { confirm } from '@/utils/confirm';
 import { successHaptic } from '@/utils/haptics';
-
-/** Ask before doing something that can't be undone. Alert does nothing on the web, so use confirm there. */
-function confirm(title: string, message: string, ok: string, onOk: () => void) {
-  if (Platform.OS === 'web') {
-    if (window.confirm(`${title}\n\n${message}`)) onOk();
-    return;
-  }
-  Alert.alert(title, message, [
-    { text: 'Cancel', style: 'cancel' },
-    { text: ok, style: 'destructive', onPress: onOk },
-  ]);
-}
 
 function Stat({ value, label }: { value: string; label: string }) {
   return (
@@ -53,6 +43,7 @@ export default function HabitScreen() {
   const setAmount = useStore((s) => s.setAmount);
   const setArchived = useStore((s) => s.setArchived);
   const deleteHabit = useStore((s) => s.deleteHabit);
+  const goal = useStore((s) => s.goals.find((g) => g.id === habit?.goalId));
   const today = useToday();
 
   if (!habit) return <Redirect href="/habits" />;
@@ -111,6 +102,15 @@ export default function HabitScreen() {
           />
         )}
       </Card>
+
+      {goal ? (
+        <Pressable onPress={() => router.push({ pathname: '/goal/[id]', params: { id: goal.id } })}>
+          <Card>
+            <Text style={type.caption}>Supports · {levelInfo(goal.level).label}</Text>
+            <Text style={type.label}>{goal.title}</Text>
+          </Card>
+        </Pressable>
+      ) : null}
 
       <Card>
         <View style={styles.stats}>

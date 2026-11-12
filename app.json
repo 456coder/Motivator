@@ -18,9 +18,15 @@
     },
     "plugins": [
       "expo-router",
-      ["expo-splash-screen", { "backgroundColor": "#8E6CFF" }],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#8E6CFF"
+        }
+      ],
       "expo-font",
-      "expo-status-bar"
+      "expo-status-bar",
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true,

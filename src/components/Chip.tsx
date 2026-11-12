@@ -19,9 +19,9 @@ export function Chip({ label, selected = false, color = colors.brand, onPress }:
       accessibilityState={{ selected }}
       onPressIn={tapHaptic}
       onPress={onPress}
-      style={[styles.chip, selected && { borderColor: color, backgroundColor: colors.card }]}>
-      <View style={[styles.dot, { backgroundColor: color }]} />
-      <Text style={styles.label}>{label}</Text>
+      style={[styles.chip, selected && { borderColor: color, backgroundColor: color }]}>
+      <View style={[styles.dot, { backgroundColor: selected ? colors.white : color }]} />
+      <Text style={[styles.label, selected && styles.selectedLabel]}>{label}</Text>
     </Pressable>
   );
 }
@@ -47,5 +47,8 @@ const styles = StyleSheet.create({
     fontFamily: fonts.semi,
     fontSize: 14,
     color: colors.ink,
+  },
+  selectedLabel: {
+    color: colors.white,
   },
 });

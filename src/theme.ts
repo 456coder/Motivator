@@ -60,6 +60,13 @@ export const statusColors = {
 } as const;
 export type TrackStatus = keyof typeof statusColors;
 
+/** Looks for every goal state: the four statuses, plus finished and nothing-to-measure-yet. */
+export const goalLooks = {
+  ...statusColors,
+  done: { fill: '#9CC9B4', soft: '#E6F3EC', text: '#2C7A53', label: 'Done' },
+  none: { fill: colors.brand, soft: colors.brandSoft, text: '#5D5A9E', label: 'No steps yet' },
+} as const;
+
 /** Colours the user can pick for a goal or habit. */
 export const pickColors = [
   colors.rose,
