@@ -1,12 +1,19 @@
 import { router } from 'expo-router';
+import { useEffect, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { Card } from '@/components/Card';
+import { EmptyState } from '@/components/EmptyState';
+import { HabitTile } from '@/components/HabitTile';
 import { HeaderBlock } from '@/components/HeaderBlock';
 import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
 import { Shelf } from '@/components/Shelf';
-import { Tile } from '@/components/Tile';
-import { areas, colors, fonts, onColor, type } from '@/theme';
+import { useToday } from '@/hooks/useToday';
+import { dayScore, dayStreak, dueHabits, isDone } from '@/logic/habits';
+import { useStore } from '@/store/useStore';
+import { areas, colors, fonts, onColor, radius, type } from '@/theme';
+import { successHaptic } from '@/utils/haptics';
 
 function greeting() {
   const h = new Date().getHours();
@@ -25,9 +32,41 @@ function HeaderStat({ value, label }: { value: string; label: string }) {
   );
 }
 
-/** Today: score, streak and today's habits, goals and plan. Example cards until phase 2. */
+/** The firm nudge: what's left, and what's at stake. */
+function nudge(left: number, streak: number, hour: number) {
+  const things = left === 1 ? '1 habit' : `${left} habits`;
+  if (hour >= 18) {
+    return streak > 0
+      ? `${things} still to do tonight. Finish them or lose your ${streak} day streak.`
+      : `${things} still to do tonight. Finish them and start a streak.`;
+  }
+  return `${things} to go today. Get them done early.`;
+}
+
+/** Today: score, streak, and today's habits to tick off. */
 export default function TodayScreen() {
+  const habits = useStore((s) => s.habits);
+  const logs = useStore((s) => s.logs);
+  const threshold = useStore((s) => s.settings.streakThreshold);
+  const today = useToday();
   const date = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+
+  const due = dueHabits(habits, today);
+  const doneCount = due.filter((h) => isDone(h, logs, today)).length;
+  const score = dayScore(habits, logs, today);
+  const streak = dayStreak(habits, logs, threshold, today);
+  const fullDay = score !== null && score >= threshold - 1e-9;
+  const hasHabits = habits.some((h) => !h.archived);
+
+  // A happy buzz the moment the day becomes full.
+  const wasFull = useRef(fullDay);
+  useEffect(() => {
+    if (fullDay && !wasFull.current) successHaptic();
+    wasFull.current = fullDay;
+  }, [fullDay]);
+
+  const todo = due.filter((h) => !isDone(h, logs, today));
+  const finished = due.filter((h) => isDone(h, logs, today));
 
   return (
     <Screen
@@ -37,39 +76,66 @@ export default function TodayScreen() {
           subtitle={date}
           action={{ icon: 'gear', label: 'Settings', onPress: () => router.push('/settings') }}>
           <View style={styles.stats}>
-            <HeaderStat value="0%" label="Today's score" />
-            <HeaderStat value="0" label="Day streak" />
-            <HeaderStat value="0/0" label="Habits done" />
+            <HeaderStat value={score === null ? '–' : `${Math.round(score * 100)}%`} label="Today's score" />
+            <HeaderStat value={String(streak)} label="Day streak" />
+            <HeaderStat value={`${doneCount}/${due.length}`} label="Habits done" />
           </View>
         </HeaderBlock>
       }>
-      <Shelf title="Today's habits" onSeeAll={() => router.push('/habits')}>
-        <Tile title="Drink 8 glasses of water" tag="Example" footer="0 of 8 glasses" progress={0} color={areas.habits.fill} />
-        <Tile title="Read for 20 minutes" tag="Example" footer="Evening" color={areas.habits.fill} />
-        <Tile title="Walk 8,000 steps" tag="Example" footer="Every day" color={areas.habits.fill} />
-      </Shelf>
-
-      <Shelf title="Goals to push" onSeeAll={() => router.push('/goals')}>
-        <Tile
-          title="Save £5,000 by March"
-          tag="Behind"
-          footer="Need £29 a day"
-          progress={0.36}
-          color={areas.goals.fill}
-          onPress={() => router.push('/goal/sample')}
+      {!hasHabits ? (
+        <EmptyState
+          icon="habits"
+          color={areas.habits.fill}
+          soft={areas.habits.soft}
+          title="Start with one habit"
+          body="Pick something small you'll do every day. Tick it off here and watch your streak grow."
+          action={{ label: 'Add a habit', onPress: () => router.push('/habit/new') }}
         />
-        <Tile title="Finish my Spanish course" tag="On track" footer="Unit 6 of 12" progress={0.5} color={areas.goals.fill} />
-      </Shelf>
+      ) : due.length === 0 ? (
+        <Card>
+          <Text style={type.cardTitle}>Nothing due today</Text>
+          <Text style={type.caption}>A free day. Your streak is safe.</Text>
+        </Card>
+      ) : (
+        <>
+          {fullDay ? (
+            <View style={[styles.banner, { backgroundColor: colors.greenSoft }]}>
+              <Icon name="star" size={20} color={colors.greenText} />
+              <Text style={[styles.bannerText, { color: colors.greenText }]}>
+                Full day! Your streak is now {streak} {streak === 1 ? 'day' : 'days'}.
+              </Text>
+            </View>
+          ) : (
+            <View style={[styles.banner, { backgroundColor: colors.roseSoft }]}>
+              <Icon name="flame" size={20} color={colors.roseText} />
+              <Text style={[styles.bannerText, { color: colors.roseText }]}>
+                {nudge(todo.length, streak, new Date().getHours())}
+              </Text>
+            </View>
+          )}
 
-      <Shelf title="Your time today" onSeeAll={() => router.push('/calendar')}>
-        <Tile title="Spanish practice" tag="6:30 pm" footer="45 min · free slot" color={areas.calendar.fill} />
-        <Tile title="Budget check" tag="8:00 pm" footer="15 min · free slot" color={areas.calendar.fill} />
-      </Shelf>
+          {todo.length > 0 ? (
+            <Shelf title="To do" onSeeAll={() => router.push('/habits')}>
+              {todo.map((h) => (
+                <HabitTile key={h.id} habit={h} day={today} mode="tick" />
+              ))}
+            </Shelf>
+          ) : null}
+          {finished.length > 0 ? (
+            <Shelf title="Done">
+              {finished.map((h) => (
+                <HabitTile key={h.id} habit={h} day={today} mode="tick" />
+              ))}
+            </Shelf>
+          ) : null}
+          <Text style={[type.caption, styles.center]}>Tap a habit to tick it off. Hold it for details.</Text>
+        </>
+      )}
 
-      <View style={styles.note}>
-        <Icon name="star" size={16} color={colors.inkMuted} />
-        <Text style={[type.caption, styles.noteText]}>Example cards for now. Your own habits and goals arrive in phases 2 and 3.</Text>
-      </View>
+      <Card>
+        <Text style={type.cardTitle}>Goals and your time plan</Text>
+        <Text style={type.caption}>Coming next: goals in phase 3, and time planned around your calendar in phase 7.</Text>
+      </Card>
     </Screen>
   );
 }
@@ -96,12 +162,19 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: onColor.body,
   },
-  note: {
+  banner: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
+    padding: 14,
+    borderRadius: radius.tile,
   },
-  noteText: {
+  bannerText: {
     flex: 1,
+    fontFamily: fonts.bold,
+    fontSize: 14,
+  },
+  center: {
+    textAlign: 'center',
   },
 });

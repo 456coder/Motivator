@@ -16,7 +16,11 @@ export type IconName =
   | 'clock'
   | 'chart'
   | 'flag'
-  | 'bell';
+  | 'bell'
+  | 'edit'
+  | 'trash'
+  | 'minus'
+  | 'archive';
 
 type Props = {
   name: IconName;
@@ -129,6 +133,25 @@ export function Icon({ name, size = 24, color = colors.ink, fill = 'none' }: Pro
             {...s}
           />
           <Path d="M10 20.5a2.2 2.2 0 0 0 4 0" fill="none" {...s} />
+        </>
+      )}
+      {name === 'edit' && (
+        <>
+          <Path d="M4 20h4L19 9l-4-4L4 16z" fill={fill} {...s} />
+          <Line x1={13} y1={7} x2={17} y2={11} {...s} />
+        </>
+      )}
+      {name === 'trash' && (
+        <>
+          <Line x1={4} y1={6.5} x2={20} y2={6.5} {...s} />
+          <Path d="M9 6.5V4h6v2.5M6.5 6.5l1 14h9l1-14" fill={fill} {...s} />
+        </>
+      )}
+      {name === 'minus' && <Line x1={5} y1={12} x2={19} y2={12} {...s} strokeWidth={2.4} />}
+      {name === 'archive' && (
+        <>
+          <Rect x={3} y={4} width={18} height={5} rx={1.5} fill={fill} {...s} />
+          <Path d="M5 9v10.5h14V9M10 13h4" fill="none" {...s} />
         </>
       )}
     </Svg>

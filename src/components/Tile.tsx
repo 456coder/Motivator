@@ -17,17 +17,30 @@ type Props = {
   /** Optional content in the top-right corner (e.g. a tick). */
   corner?: ReactNode;
   onPress?: () => void;
+  /** Press and hold (e.g. to open details). */
+  onLongPress?: () => void;
+  /** Fade the card a little (e.g. a habit that's done). */
+  muted?: boolean;
+  accessibilityLabel?: string;
 };
 
 /** Tall coloured card with white text, used in Shelf rows. */
-export function Tile({ title, footer, tag, color, progress, corner, onPress }: Props) {
+export function Tile({ title, footer, tag, color, progress, corner, onPress, onLongPress, muted, accessibilityLabel }: Props) {
   return (
     <Pressable
       accessibilityRole={onPress ? 'button' : undefined}
-      disabled={!onPress}
+      accessibilityLabel={accessibilityLabel}
+      disabled={!onPress && !onLongPress}
       onPressIn={onPress ? tapHaptic : undefined}
       onPress={onPress}
-      style={({ pressed }) => [styles.tile, { backgroundColor: color }, pressed && styles.pressed]}>
+      onLongPress={onLongPress}
+      delayLongPress={350}
+      style={({ pressed }) => [
+        styles.tile,
+        { backgroundColor: color },
+        muted && styles.muted,
+        pressed && styles.pressed,
+      ]}>
       <View style={styles.top}>
         <Text style={styles.title} numberOfLines={4}>
           {title}
@@ -54,6 +67,9 @@ const styles = StyleSheet.create({
     borderRadius: radius.tile,
     padding: 14,
     justifyContent: 'space-between',
+  },
+  muted: {
+    opacity: 0.72,
   },
   pressed: {
     transform: [{ scale: 0.97 }],

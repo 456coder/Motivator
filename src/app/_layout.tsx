@@ -8,12 +8,23 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 
+import { useStore } from '@/store/useStore';
 import { colors } from '@/theme';
 
-// Keep the splash screen up until the fonts have loaded.
+// Keep the splash screen up until the fonts and saved data have loaded.
 SplashScreen.preventAutoHideAsync();
+
+/** True once the saved data has been loaded from the phone. */
+function useHydrated() {
+  return useSyncExternalStore(
+    (onChange) => useStore.persist.onFinishHydration(onChange),
+    () => useStore.persist.hasHydrated(),
+    // On the web the first draw happens on the server, where nothing is saved yet.
+    () => false,
+  );
+}
 
 /**
  * Root navigator: a stack of screens.
@@ -27,7 +38,8 @@ export default function RootLayout() {
     PlusJakartaSans_700Bold,
     PlusJakartaSans_800ExtraBold,
   });
-  const ready = fontsLoaded || fontError !== null;
+  const hydrated = useHydrated();
+  const ready = (fontsLoaded || fontError !== null) && hydrated;
 
   useEffect(() => {
     if (ready) SplashScreen.hideAsync();
@@ -44,8 +56,9 @@ export default function RootLayout() {
         }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="goal/[id]" />
-        <Stack.Screen name="goal/new" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="habit/new" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="goal/new" />
+        <Stack.Screen name="habit/new" />
+        <Stack.Screen name="habit/[id]" />
         <Stack.Screen name="review" />
         <Stack.Screen name="settings" />
         <Stack.Screen name="components" />
