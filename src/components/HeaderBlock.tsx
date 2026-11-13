@@ -16,6 +16,8 @@ type Props = {
   back?: boolean;
   /** Optional round button on the right. */
   action?: { icon: IconName; label: string; onPress: () => void };
+  /** Optional round button on the left (when there's no back button). */
+  leftAction?: { icon: IconName; label: string; onPress: () => void };
   /** Extra content under the title (e.g. today's score). */
   children?: ReactNode;
 };
@@ -39,13 +41,17 @@ function GlassButton({ icon, label, onPress }: { icon: IconName; label: string; 
  * Coloured block across the top of a screen, with a centred white title.
  * It reaches up behind the status bar and has rounded bottom corners.
  */
-export function HeaderBlock({ title, subtitle, color = colors.brand, back = false, action, children }: Props) {
+export function HeaderBlock({ title, subtitle, color = colors.brand, back = false, action, leftAction, children }: Props) {
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.block, { backgroundColor: color, paddingTop: insets.top + 10 }]}>
       <View style={styles.bar}>
         <View style={styles.side}>
-          {back ? <GlassButton icon="back" label="Back" onPress={() => router.back()} /> : null}
+          {back ? (
+            <GlassButton icon="back" label="Back" onPress={() => router.back()} />
+          ) : leftAction ? (
+            <GlassButton {...leftAction} />
+          ) : null}
         </View>
         <View style={styles.side}>{action ? <GlassButton {...action} /> : null}</View>
       </View>

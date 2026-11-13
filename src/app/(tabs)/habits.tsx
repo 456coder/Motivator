@@ -1,5 +1,6 @@
 import { router } from 'expo-router';
 
+import { Button } from '@/components/Button';
 import { EmptyState } from '@/components/EmptyState';
 import { HabitTile } from '@/components/HabitTile';
 import { HeaderBlock } from '@/components/HeaderBlock';
@@ -50,6 +51,9 @@ export default function HabitsScreen() {
           );
         })
       )}
+      {active.length > 0 ? (
+        <Button label="See your progress" icon="chart" variant="secondary" onPress={() => router.push('/progress')} />
+      ) : null}
       {archived.length > 0 ? (
         <Shelf title="Archived">
           {archived.map((h) => (

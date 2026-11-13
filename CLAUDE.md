@@ -82,7 +82,7 @@ Each can be switched on/off with its own time in Settings: morning plan and even
 
 ## Screens
 - Tabs: **Today**, **Goals**, **Habits**, **Calendar** (custom white tab bar; the active tab's icon sits in a soft pill of its area colour). Today: greeting header with score / streak / habits-done stats, then shelves for today's habits, goals to push and your time today.
-- Other screens: Goal detail (`/goal/[id]`), New / edit goal (`/goal/new`), Plan tree (`/plan`), New / edit habit (`/habit/new`), Habit (`/habit/[id]`), Check-ins (`/review`), Settings (`/settings`, opened from the gear on Today), Components gallery (`/components`).
+- Other screens: Progress (`/progress`, chart button top-left on Today, and "See your progress" on Habits), Goal detail (`/goal/[id]`), New / edit goal (`/goal/new`), Plan tree (`/plan`), New / edit habit (`/habit/new`), Habit (`/habit/[id]`), Check-ins (`/review`), Settings (`/settings`, opened from the gear on Today), Components gallery (`/components`).
 
 ## Folders
 Screens in `src/app/`, components in `src/components/` (PascalCase), rules in `src/logic/` (pure functions), saved data + actions in `src/store/`, helpers in `src/utils/`, numbers and switches in `src/config.ts`.
@@ -101,7 +101,7 @@ Screens in `src/app/`, components in `src/components/` (PascalCase), rules in `s
 2. Habits: create, tick off, streaks, Today screen ✅
 3. The goal ladder: 5-year / 3-year / 1-year goals, 90-day milestones, this week's focus, linking goals and habits, logging progress, status + pace, Plan view, "Build your plan" ✅
 4. Change history ("no quiet backing out") + goal detail polish ✅
-5. Charts + history
+5. Charts + history ✅
 6. Reminders with on/off choices + daily score
 7. Calendar: read events, free time, time allocation, add blocks
 8. Weekly, monthly and yearly check-ins
@@ -126,3 +126,8 @@ Screens in `src/app/`, components in `src/components/` (PascalCase), rules in `s
   - Habits can support a goal (picker on the habit form; shown on the habit page). Tile ticks moved to the bottom-right corner so long titles never push them off the card.
   - Rule checks: `npx tsx scripts/test-goals.ts`. Dates use `@react-native-community/datetimepicker` (compact picker on iPhone).
 - **Phase 4, no quiet backing out (built 12 Nov 2026):** every deadline or target change is saved in `goalChanges` (store version 3) with the date and a reason; `goalChanges()` in `src/logic/goals.ts` spots them and marks later deadlines and targets closer to the start as "easier". On Edit goal, an easier change shows an orange "You're making this goal easier" card listing the changes, and Save stays off until a reason of 5+ letters is written. Archiving an unfinished goal asks "Why are you stopping?" (5+ letters) and records it; finished goals archive straight away. The goal page shows "Made easier N times. See History." and History lists progress entries and changes together, newest first, with the reasons in quotes. Harder changes (sooner deadline, bigger target) are recorded too, without needing a reason.
+- **Phase 5, charts (built 13 Nov 2026):** numbers in `src/logic/stats.ts` (daily and weekly scores, full days, a goal's points over time; weeks run Monday to Sunday). Charts are drawn by hand so they work in Expo Go: `GoalChart` (react-native-svg: dashed "where you should be" line from start to target, solid line of your logged totals, dotted line for today, dates under it), `BarChart` (plain Views, dashed goal line, today/this week outlined; daily bars below a full day are paler), `HabitHeatmap` (12 weeks, a column per week, a row per weekday; full colour = done, faded = partly done, pink = missed, blank = not due).
+  - **Progress screen** (`/progress`): this week's score, day streak, full days out of 30; "Your score" with 14 days / 8 weeks; a heatmap card per habit; a chart card per number goal with its status; recent progress entries across goals. Cards open the habit or goal.
+  - **Goal page:** an "Over time" chart card for number goals.
+  - Tiles: the tick now sits beside the bottom line only, so streak labels stay on one line.
+  - Rule checks: `npx tsx scripts/test-stats.ts`.

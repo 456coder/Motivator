@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
+import { GoalChart } from '@/components/GoalChart';
 import { GoalTile } from '@/components/GoalTile';
 import { HeaderBlock } from '@/components/HeaderBlock';
 import { Icon } from '@/components/Icon';
@@ -150,6 +151,14 @@ export default function GoalScreen() {
           </View>
         ) : null}
       </Card>
+
+      {/* Progress over time (number goals). */}
+      {goal.kind === 'number' ? (
+        <Card>
+          <Text style={type.cardTitle}>Over time</Text>
+          <GoalChart goal={goal} goalLogs={goalLogs} today={today} color={look.fill} />
+        </Card>
+      ) : null}
 
       {/* Logging progress / ticking off. */}
       {goal.kind === 'number' && !goal.archived ? (

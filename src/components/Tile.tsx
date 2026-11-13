@@ -44,17 +44,18 @@ export function Tile({ title, footer, tag, color, progress, corner, onPress, onL
       <Text style={styles.title} numberOfLines={4}>
         {title}
       </Text>
-      <View style={styles.bottomRow}>
-        <View style={styles.bottom}>
-          {progress !== undefined ? (
-            <View style={styles.track}>
-              <View style={[styles.fill, { width: `${Math.max(0, Math.min(1, progress)) * 100}%` }]} />
-            </View>
-          ) : null}
-          {tag ? <Text style={styles.tag}>{tag}</Text> : null}
-          {footer ? <Text style={styles.footer}>{footer}</Text> : null}
+      <View style={styles.bottom}>
+        {progress !== undefined ? (
+          <View style={styles.track}>
+            <View style={[styles.fill, { width: `${Math.max(0, Math.min(1, progress)) * 100}%` }]} />
+          </View>
+        ) : null}
+        {tag ? <Text style={styles.tag}>{tag}</Text> : null}
+        {/* The last line shares its row with the corner tick, so nothing above it gets squeezed. */}
+        <View style={styles.bottomRow}>
+          <Text style={[styles.footer, styles.flex]}>{footer ?? ''}</Text>
+          {corner ? <View style={styles.corner}>{corner}</View> : null}
         </View>
-        {corner ? <View style={styles.corner}>{corner}</View> : null}
       </View>
     </Pressable>
   );
@@ -76,7 +77,7 @@ const styles = StyleSheet.create({
   },
   bottomRow: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    alignItems: 'center',
     gap: 8,
   },
   corner: {
@@ -89,8 +90,10 @@ const styles = StyleSheet.create({
     color: onColor.title,
   },
   bottom: {
-    flex: 1,
     gap: 4,
+  },
+  flex: {
+    flex: 1,
   },
   track: {
     height: 5,

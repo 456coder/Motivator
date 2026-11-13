@@ -58,6 +58,7 @@ export default function RootLayout() {
         <Stack.Screen name="goal/[id]" />
         <Stack.Screen name="goal/new" />
         <Stack.Screen name="plan" />
+        <Stack.Screen name="progress" />
         <Stack.Screen name="habit/new" />
         <Stack.Screen name="habit/[id]" />
         <Stack.Screen name="review" />

@@ -84,6 +84,7 @@ export default function TodayScreen() {
         <HeaderBlock
           title={greeting()}
           subtitle={date}
+          leftAction={{ icon: 'chart', label: 'Your progress', onPress: () => router.push('/progress') }}
           action={{ icon: 'gear', label: 'Settings', onPress: () => router.push('/settings') }}>
           <View style={styles.stats}>
             <HeaderStat value={score === null ? '–' : `${Math.round(score * 100)}%`} label="Today's score" />
